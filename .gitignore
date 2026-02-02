@@ -1,12 +1,16 @@
-# Ignore all root files and directories except for docs and product-development
+# Ignore everything at the root
 /*
-!/docs/
+
+# Except for these specific files/folders
 !/product-development/
 !/.gitignore
 
-# Ignore Claude files specifically
-.claude/
+# Explicitly ignore common folders (already covered by /* but for clarity)
+/docs/
+/Tài liệu DMS/
+/.claude/
 
-# Ignore OS files
+# OS and temp files
 .DS_Store
 Thumbs.db
+*.log
