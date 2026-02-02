@@ -1,0 +1,12 @@
+# Ignore all root files and directories except for docs and product-development
+/*
+!/docs/
+!/product-development/
+!/.gitignore
+
+# Ignore Claude files specifically
+.claude/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
