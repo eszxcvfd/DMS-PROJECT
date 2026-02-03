@@ -1,16 +1,4 @@
-# Ignore everything at the root
 /*
-
-# Except for these specific files/folders
-!/product-development/
 !/.gitignore
-
-# Explicitly ignore common folders (already covered by /* but for clarity)
-/docs/
-/Tài liệu DMS/
-/.claude/
-
-# OS and temp files
-.DS_Store
-Thumbs.db
-*.log
+!/docs/
+!/product-development/
