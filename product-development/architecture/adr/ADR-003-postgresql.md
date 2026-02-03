@@ -110,10 +110,10 @@ $$ LANGUAGE plpgsql;
 ## Connection Configuration
 
 ```csharp
-// appsettings.json optimized for PostgreSQL
+// appsettings.json optimized for PostgreSQL (Neon example)
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=db.xxxxx.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=...;SSL Mode=Require;Trust Server Certificate=true;Pooling=true;Maximum Pool Size=20;"
+    "DefaultConnection": "Host=ep-xxxxx.us-east-2.aws.neon.tech;Port=5432;Database=neondb;Username=...;Password=...;SSL Mode=Require;Trust Server Certificate=true;Pooling=true;Maximum Pool Size=20;"
   }
 }
 

@@ -357,16 +357,16 @@ healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 ```
 
-### 4.2 Neon (Database Alternative)
+### 4.2 Render (Database Alternative)
 
-**When to use:** Alternative PostgreSQL hosting with serverless features
+**When to use:** Need more storage or longer free tier duration
 
 | Specification | Value |
 |--------------|-------|
-| **Storage** | 512 MB |
-| **Compute** | 191 hours/month |
-| **Branching** | Database branching for dev/test |
-| **Autoscaling** | Scale to zero when idle |
+| **Storage** | 1 GB |
+| **Compute** | Shared |
+| **Expiry** | 90 days (must recreate) |
+| **Features** | Auto-suspend, easy deployment |
 
 ### 4.3 Railway (Database Alternative)
 

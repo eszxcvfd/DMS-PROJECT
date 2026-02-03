@@ -154,7 +154,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 | Auto-sleep after 20 min | Cold start latency (15-30s) | Health ping to keep alive 8AM-8PM |
 | 1GB RAM | Memory constraints | Stream large responses, paginate |
 | No custom domain (F1) | Less professional URL | Use Cloudflare as reverse proxy |
-| 500MB database limit | May fill up | Archive old data, optimize storage |
+| 512MB database limit (Neon) | May fill up | Archive old data, optimize storage |
 
 ## Consequences
 
@@ -192,8 +192,8 @@ When free tier limits are exceeded:
 | Upgrade | Trigger | Cost Increase |
 |---------|---------|---------------|
 | App Service B1 | CPU/memory limits | +$13/month |
-| Supabase Pro | Storage >500MB | +$25/month |
-| Neon Pro | Need more features | +$19/month |
+| Neon Scale | Storage >512MB or more compute | +$19/month |
+| Supabase Pro | Alternative if need more features | +$25/month |
 | Vercel Pro | Bandwidth >100GB | +$20/month |
 
 ## References
