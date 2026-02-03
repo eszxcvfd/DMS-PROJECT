@@ -16,7 +16,7 @@ This document describes deployment options optimized for **minimal cost** while 
 | Component | Provider | Free Tier Limits | Monthly Cost |
 |-----------|----------|------------------|--------------|
 | **API Server** | Azure App Service F1 | 60 min CPU/day, 1GB RAM | **$0** |
-| **Database** | Supabase Free | 500MB storage, PostgreSQL | **$0** |
+| **Database** | Neon Free | 512MB storage, PostgreSQL | **$0** |
 | **Web App** | Vercel Free | 100GB bandwidth, serverless | **$0** |
 | **Blob Storage** | Azure Blob | 5GB storage, 20K operations | **$0** |
 | **Push Notifications** | Firebase FCM | Unlimited | **$0** |
@@ -73,10 +73,10 @@ This document describes deployment options optimized for **minimal cost** while 
 │  │      │             │                                                                 │  │
 │  │      ▼             ▼                                                                 │  │
 │  │  ┌─────────────┐  ┌─────────────┐                                                   │  │
-│  │  │ Supabase    │  │ Azure Blob  │                                                   │  │
+│  │  │ Neon        │  │ Azure Blob  │                                                   │  │
 │  │  │  (Free)     │  │  (Free)     │                                                   │  │
 │  │  │             │  │             │                                                   │  │
-│  │  │ - 500MB     │  │ - 5GB       │                                                   │  │
+│  │  │ - 512MB     │  │ - 5GB       │                                                   │  │
 │  │  │ - PostgreSQL│  │ - 20K ops   │                                                   │  │
 │  │  │ - Auth/API  │  │ - Images    │                                                   │  │
 │  │  └─────────────┘  └─────────────┘                                                   │  │
@@ -195,23 +195,23 @@ builder.Services.AddSingleton<IFirebaseService>(sp =>
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 ```
 
-### 3.2 Supabase PostgreSQL Database (Free Tier)
+### 3.2 Neon PostgreSQL Database (Free Tier)
 
 **Service Tier:** Free
 
 | Specification | Value |
 |--------------|-------|
-| **Storage** | 500 MB |
+| **Storage** | 512 MB |
 | **Database** | PostgreSQL 15 |
-| **API Requests** | 2M/month |
-| **Auth Users** | 50,000 MAU |
-| **Edge Functions** | 500K invocations |
-| **Realtime** | 200 concurrent connections |
+| **Data Transfer** | 3 GB/month |
+| **Compute** | 191 hours/month |
+| **Autoscaling** | Scale to zero |
+| **Branching** | Supported |
 
 **Connection String:**
 
 ```
-Host=db.xxxxx.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=<password>;SSL Mode=Require;Trust Server Certificate=true
+Host=ep-xxxx.neon.tech;Database=neondb;Username=...;Password=...;SSL Mode=Require;Trust Server Certificate=true
 ```
 
 **Optimization for Free Tier:**
@@ -642,7 +642,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 FREE TIER              BASIC TIER             STANDARD TIER
 ─────────              ──────────             ─────────────
 Azure F1 ($0)    ───►  Azure B1 ($13/mo) ───► Azure S1 ($73/mo)
-Supabase Free   ───►  Supabase Pro ($25)  ───► Self-hosted
+Neon Free     ───►  Neon Pro ($19/mo)  ───► Self-hosted
 Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 ```
 
@@ -654,7 +654,7 @@ Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 
 | Component | Backup Method | Frequency | Retention |
 |-----------|---------------|-----------|-----------|
-| **PostgreSQL** | Supabase automated | Daily | 7 days (free) |
+| **PostgreSQL** | Neon automated | Daily | 30 days |
 | **Blob Storage** | Soft delete | On delete | 7 days |
 | **App Code** | Git repository | On commit | Indefinite |
 | **Secrets** | Key Vault (manual) | On change | Indefinite |
@@ -734,4 +734,4 @@ builder.Configuration.AddEnvironmentVariables();
 
 - [07-SECURITY-ARCHITECTURE.md](07-SECURITY-ARCHITECTURE.md) - Security details
 - [adr/ADR-003-postgresql.md](adr/ADR-003-postgresql.md) - Database decision
-- [adr/ADR-004-vercel-frontend.md](adr/ADR-004-vercel-frontend.md) - Frontend hosting decision
+- [adr/ADR-004-neon-free-tier.md](adr/ADR-004-neon-free-tier.md) - Database and Deployment hosting decision

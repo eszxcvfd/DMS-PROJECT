@@ -119,7 +119,7 @@ This architecture follows the C4 Model for visualization:
 │                           ▼                                                 │
 │           ┌─────────────────────────────────┐                              │
 │           │        PostgreSQL Database         │                              │
-│           │      (Supabase / Neon / Local)      │                              │
+│           │      (Neon / Supabase / Local)      │                              │
 │           └─────────────────────────────────┘                              │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -184,7 +184,7 @@ For detailed rationale, see [ADR documents](adr/).
 | Component | Primary Option | Alternative |
 |-----------|---------------|-------------|
 | **API Server** | Azure App Service (F1 Free) | Railway.app Free |
-| **Database** | Supabase Free (PostgreSQL) | Neon Free |
+| **Database** | Neon Free (PostgreSQL) | Supabase Free |
 | **Web App** | Vercel Free | Cloudflare Pages |
 | **File Storage** | Azure Blob (5GB free) | Cloudflare R2 |
 | **Mobile App** | Google Play Console ($25 one-time) | Direct APK |

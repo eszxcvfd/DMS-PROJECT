@@ -1,4 +1,4 @@
-# ADR-004: Azure Free Tier for Deployment
+# ADR-004: Neon Free Tier for Hosting and Deployment
 
 ## Status
 
@@ -15,7 +15,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 ## Decision Drivers
 
 - **Budget constraint**: Free tier deployment is mandatory
-- **PostgreSQL database**: Use Supabase or Neon free tier
+- **PostgreSQL database**: Use Neon or Supabase free tier
 - **Reliability**: 99.5% uptime target
 - **Scalability**: Path to scale when needed
 - **Integration**: Seamless with .NET ecosystem
@@ -26,7 +26,8 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 ### 1. Azure Free Tier (Primary)
 - App Service F1: 60 CPU min/day, 1GB RAM
 - Azure SQL Free: 32GB, 100K vCore-sec (not using - see ADR-003)
-- Supabase PostgreSQL: 500MB (primary database)
+- Neon PostgreSQL: 512MB (primary database)
+- Supabase PostgreSQL: 500MB (secondary/alternative)
 - Blob Storage: 5GB free
 - Application Insights: 5GB/month
 
@@ -56,13 +57,13 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 
 ## Decision
 
-**We will use Azure Free Tier as the primary deployment platform.**
+**We will use Neon and Azure Free Tiers as the primary deployment platform.**
 
 ### Rationale
 
-1. **PostgreSQL via Supabase**: We use Supabase Free tier for PostgreSQL database (500MB) as decided in ADR-003.
+1. **PostgreSQL via Neon**: We use Neon Free tier for PostgreSQL database (512MB) as decided in ADR-003.
 
-2. **Integrated Ecosystem**: Azure App Service + Supabase PostgreSQL + Azure Blob Storage work well together.
+2. **Integrated Ecosystem**: Azure App Service + Neon PostgreSQL + Azure Blob Storage work well together.
 
 3. **.NET Optimization**: Azure App Service is optimized for .NET applications with minimal configuration.
 
@@ -98,12 +99,12 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 │                    │          │                         │           │                 │
 │                    │          ▼                         ▼           │                 │
 │                    │   ┌─────────────────┐       ┌─────────────────┐│                 │
-│                    │   │ Supabase        │       │ Azure Blob      ││                 │
+│                    │   │ Neon            │       │ Azure Blob      ││                 │
 │                    │   │ (PostgreSQL)    │       │ (Free 5GB)      ││                 │
 │                    │   │                 │       │                 ││                 │
-│                    │   │ - 500MB storage │       │ - Product images││                 │
+│                    │   │ - 512MB storage │       │ - Product images││                 │
 │                    │   │ - PostgreSQL 15 │       │ - Visit photos  ││                 │
-│                    │   │ - REST API      │       │                 ││                 │
+│                    │   │ - Serverless    │       │                 ││                 │
 │                    │   └─────────────────┘       └─────────────────┘│                 │
 │                    │                                                 │                 │
 │                    │   ┌─────────────────────────────────────────┐  │                 │
@@ -138,7 +139,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 | Component | Provider | Free Tier Limit | Monthly Cost |
 |-----------|----------|-----------------|--------------|
 | API Server | Azure App Service F1 | 60 CPU min/day, 1GB | **$0** |
-| Database | Supabase Free | 500MB PostgreSQL | **$0** |
+| Database | Neon Free | 512MB PostgreSQL | **$0** |
 | Web App | Vercel Hobby | 100GB bandwidth | **$0** |
 | Blob Storage | Azure Blob | 5GB, 20K ops | **$0** |
 | Push Notifications | Firebase FCM | Unlimited | **$0** |

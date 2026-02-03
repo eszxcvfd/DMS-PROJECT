@@ -18,7 +18,7 @@ This document describes the data architecture for DILIGO DMS, including the logi
 | **RDBMS** | PostgreSQL 16 |
 | **ORM** | Entity Framework Core 8 (Npgsql) |
 | **Migration** | EF Core Migrations |
-| **Free Tier** | Supabase Free (500MB), Neon Free (512MB), or self-hosted |
+| **Free Tier** | Neon Free (512MB), Supabase Free (500MB), or self-hosted |
 
 ---
 

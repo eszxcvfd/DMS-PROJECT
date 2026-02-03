@@ -16,16 +16,16 @@ DILIGO DMS requires a reliable database to store master data, transactions, and 
 
 - **Open Source**: No licensing costs, community-driven development
 - **.NET Integration**: Excellent support with Npgsql and EF Core
-- **Free tier availability**: Supabase Free (500MB), Neon Free (512MB), or self-hosted
+- **Free tier availability**: Neon Free (512MB), Supabase Free (500MB), or self-hosted
 - **Transactional integrity**: ACID compliance required
 - **Reporting needs**: Complex analytical queries
 - **Advanced features**: JSONB, full-text search, extensions
 
 ## Considered Options
 
-### 1. PostgreSQL (Supabase/Neon/Self-hosted)
+### 1. PostgreSQL (Neon/Supabase/Self-hosted)
 - Open source, no licensing
-- Supabase free tier (500MB) or Neon free tier (512MB)
+- Neon free tier (512MB) or Supabase free tier (500MB)
 - Advanced features (JSONB, PostGIS, full-text search)
 - Strong community and ecosystem
 - Excellent EF Core support via Npgsql
@@ -50,16 +50,16 @@ DILIGO DMS requires a reliable database to store master data, transactions, and 
 
 ## Decision
 
-**We will use PostgreSQL via Supabase Free tier or self-hosted.**
+**We will use PostgreSQL via Neon Free tier or self-hosted.**
 
 ### Rationale
 
 1. **Open Source**: PostgreSQL is fully open source with no licensing costs and no vendor lock-in.
 
 2. **Free Tier Options**:
-   - Supabase Free: 500MB storage, 2GB bandwidth, 50K monthly active users
-   - Neon Free: 512MB storage, 3GB data transfer
-   - Railway/Render: PostgreSQL with free tier credits
+    - Neon Free: 512MB storage, 3GB data transfer, branching
+    - Supabase Free: 500MB storage, 2GB bandwidth
+    - Railway/Render: PostgreSQL with free tier credits
 
 3. **EF Core Integration**: Npgsql provider for Entity Framework Core has excellent feature parity and performance.
 
@@ -76,8 +76,8 @@ DILIGO DMS requires a reliable database to store master data, transactions, and 
 
 | Provider | Storage | Bandwidth | Features |
 |----------|---------|-----------|----------|
-| **Supabase** | 500 MB | 2 GB | Auth, Storage, Edge Functions |
 | **Neon** | 512 MB | 3 GB | Serverless, branching |
+| **Supabase** | 500 MB | 2 GB | Auth, Storage, Edge Functions |
 | **Railway** | $5 credits | Shared | Easy deployment |
 | **Render** | 1 GB | Shared | 90-day expiry on free |
 

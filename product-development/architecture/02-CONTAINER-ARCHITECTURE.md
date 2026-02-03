@@ -215,7 +215,7 @@ This document describes the high-level technology choices and responsibilities o
 | Aspect | Details |
 |--------|---------|
 | **Engine** | PostgreSQL 16 |
-| **Free Options** | Supabase Free (500MB), Neon Free (512MB), self-hosted |
+| **Free Options** | Neon Free (512MB), Supabase Free (500MB), self-hosted |
 | **Schema Design** | Normalized with strategic denormalization |
 | **Indexing** | B-tree + GIN indexes for JSONB |
 | **Security** | TLS encryption in transit, encryption at rest |
@@ -396,7 +396,7 @@ C4Container
 | **Mobile** | Kotlin + Jetpack Compose + Room | Google Play ($25 one-time) |
 | **Web Frontend** | React + TypeScript + Tailwind | Vercel Free / Cloudflare Pages |
 | **API Backend** | .NET 8 + ASP.NET Core + EF Core | Azure App Service F1 / Railway |
-| **Database** | PostgreSQL | Supabase Free (500MB) / Neon Free |
+| **Database** | PostgreSQL | Neon Free (512MB) / Supabase |
 | **Blob Storage** | Azure Blob / Cloudflare R2 | 5GB free / 10GB free |
 | **Cache** | Redis / In-Memory | Upstash Free / In-memory |
 | **Real-time** | SignalR | Included in API |
