@@ -3,7 +3,7 @@
 ## Distribution Management System - Container Diagram
 
 **Version:** 1.0
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-03
 
 ---
 
@@ -62,7 +62,7 @@ This document describes the high-level technology choices and responsibilities o
 │              │                      │                      │                               │
 │              ▼                      ▼                      ▼                               │
 │  ┌───────────────────┐  ┌───────────────────┐  ┌───────────────────┐                      │
-│  │   SQL Server      │  │   Blob Storage    │  │   Redis Cache     │                      │
+│  │   PostgreSQL      │  │   Blob Storage    │  │   Redis Cache     │                      │
 │  │   [Database]      │  │   [Files/Images]  │  │   [Optional]      │                      │
 │  │                   │  │                   │  │                   │                      │
 │  │ - Master data     │  │ - Product images  │  │ - Session cache   │                      │
@@ -210,15 +210,15 @@ This document describes the high-level technology choices and responsibilities o
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.4 SQL Server Database
+### 2.4 PostgreSQL Database
 
 | Aspect | Details |
 |--------|---------|
-| **Engine** | SQL Server 2022 / Azure SQL |
-| **Free Options** | Azure SQL Free (32GB), SQL Express (10GB) |
+| **Engine** | PostgreSQL 16 |
+| **Free Options** | Supabase Free (500MB), Neon Free (512MB), self-hosted |
 | **Schema Design** | Normalized with strategic denormalization |
-| **Indexing** | Clustered + non-clustered based on queries |
-| **Security** | TDE encryption at rest, TLS in transit |
+| **Indexing** | B-tree + GIN indexes for JSONB |
+| **Security** | TLS encryption in transit, encryption at rest |
 
 **Key Data Stores:**
 - Master data (Customers, Products, Distributors)
@@ -255,7 +255,7 @@ This document describes the high-level technology choices and responsibilities o
 │                  SYNCHRONOUS API CALLS                          │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Mobile/Web App  ──────►  .NET API  ──────►  SQL Server        │
+│  Mobile/Web App  ──────►  .NET API  ──────►  PostgreSQL        │
 │                                                                 │
 │  Protocol: HTTPS                                                │
 │  Format: JSON                                                   │
@@ -364,7 +364,7 @@ C4Container
         Container(mobile, "Android App", "Kotlin, Jetpack Compose", "Field operations: visits, orders, photos")
         Container(web, "Web Application", "React/Blazor", "Dashboard, monitoring, management")
         Container(api, "API Server", ".NET 8, ASP.NET Core", "REST API, Business Logic, SignalR")
-        ContainerDb(db, "Database", "SQL Server", "Master data, Transactions, Audit logs")
+        ContainerDb(db, "Database", "PostgreSQL", "Master data, Transactions, Audit logs")
         ContainerDb(blob, "Blob Storage", "Azure Blob/R2", "Images, Documents")
         ContainerDb(cache, "Cache", "Redis/In-Memory", "Session, API cache")
     }
@@ -379,7 +379,7 @@ C4Container
     Rel(mobile, api, "Calls", "HTTPS/JSON")
     Rel(web, api, "Calls", "HTTPS/JSON + SignalR")
 
-    Rel(api, db, "Reads/Writes", "EF Core")
+    Rel(api, db, "Reads/Writes", "Npgsql")
     Rel(api, blob, "Stores files", "SDK")
     Rel(api, cache, "Caches", "StackExchange.Redis")
 
@@ -396,7 +396,7 @@ C4Container
 | **Mobile** | Kotlin + Jetpack Compose + Room | Google Play ($25 one-time) |
 | **Web Frontend** | React + TypeScript + Tailwind | Vercel Free / Cloudflare Pages |
 | **API Backend** | .NET 8 + ASP.NET Core + EF Core | Azure App Service F1 / Railway |
-| **Database** | SQL Server / Azure SQL | Azure SQL Free (32GB) |
+| **Database** | PostgreSQL | Supabase Free (500MB) / Neon Free |
 | **Blob Storage** | Azure Blob / Cloudflare R2 | 5GB free / 10GB free |
 | **Cache** | Redis / In-Memory | Upstash Free / In-memory |
 | **Real-time** | SignalR | Included in API |

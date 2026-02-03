@@ -3,7 +3,7 @@
 ## Distribution Management System - Free Tier Deployment Guide
 
 **Version:** 1.0
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-03
 
 ---
 
@@ -16,7 +16,7 @@ This document describes deployment options optimized for **minimal cost** while 
 | Component | Provider | Free Tier Limits | Monthly Cost |
 |-----------|----------|------------------|--------------|
 | **API Server** | Azure App Service F1 | 60 min CPU/day, 1GB RAM | **$0** |
-| **Database** | Azure SQL Free | 32GB storage, 100K vCore-sec/month | **$0** |
+| **Database** | Supabase Free | 500MB storage, PostgreSQL | **$0** |
 | **Web App** | Vercel Free | 100GB bandwidth, serverless | **$0** |
 | **Blob Storage** | Azure Blob | 5GB storage, 20K operations | **$0** |
 | **Push Notifications** | Firebase FCM | Unlimited | **$0** |
@@ -73,12 +73,12 @@ This document describes deployment options optimized for **minimal cost** while 
 │  │      │             │                                                                 │  │
 │  │      ▼             ▼                                                                 │  │
 │  │  ┌─────────────┐  ┌─────────────┐                                                   │  │
-│  │  │ Azure SQL   │  │ Azure Blob  │                                                   │  │
+│  │  │ Supabase    │  │ Azure Blob  │                                                   │  │
 │  │  │  (Free)     │  │  (Free)     │                                                   │  │
 │  │  │             │  │             │                                                   │  │
-│  │  │ - 32GB      │  │ - 5GB       │                                                   │  │
-│  │  │ - 100K      │  │ - 20K ops   │                                                   │  │
-│  │  │   vCore-sec │  │ - Images    │                                                   │  │
+│  │  │ - 500MB     │  │ - 5GB       │                                                   │  │
+│  │  │ - PostgreSQL│  │ - 20K ops   │                                                   │  │
+│  │  │ - Auth/API  │  │ - Images    │                                                   │  │
 │  │  └─────────────┘  └─────────────┘                                                   │  │
 │  │                                                                                      │  │
 │  └──────────────────────────────────────────────────────────────────────────────────────┘  │
@@ -195,57 +195,48 @@ builder.Services.AddSingleton<IFirebaseService>(sp =>
 builder.Logging.SetMinimumLevel(LogLevel.Warning);
 ```
 
-### 3.2 Azure SQL Database (Free Tier)
+### 3.2 Supabase PostgreSQL Database (Free Tier)
 
-**Service Tier:** Free (serverless)
+**Service Tier:** Free
 
 | Specification | Value |
 |--------------|-------|
-| **Storage** | 32 GB |
-| **Compute** | 100,000 vCore-seconds/month |
-| **Auto-pause** | After 1 hour idle |
-| **Max vCores** | 1 |
-| **Backup** | 7 days retention |
+| **Storage** | 500 MB |
+| **Database** | PostgreSQL 15 |
+| **API Requests** | 2M/month |
+| **Auth Users** | 50,000 MAU |
+| **Edge Functions** | 500K invocations |
+| **Realtime** | 200 concurrent connections |
 
 **Connection String:**
 
 ```
-Server=tcp:diligo-dms-server.database.windows.net,1433;
-Initial Catalog=diligo-dms-db;
-Persist Security Info=False;
-User ID=<username>;
-Password=<password>;
-MultipleActiveResultSets=False;
-Encrypt=True;
-TrustServerCertificate=False;
-Connection Timeout=30;
+Host=db.xxxxx.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=<password>;SSL Mode=Require;Trust Server Certificate=true
 ```
 
 **Optimization for Free Tier:**
 
 ```sql
--- Enable Query Store for monitoring
-ALTER DATABASE [diligo-dms-db] SET QUERY_STORE = ON;
-
 -- Create efficient indexes for common queries
 CREATE INDEX IX_Visits_UserDate ON Visits(UserId, VisitDate DESC)
 INCLUDE (CheckInTime, CheckOutTime, VisitResult);
 
--- Use data compression to save storage
-ALTER TABLE LocationHistory REBUILD WITH (DATA_COMPRESSION = PAGE);
+-- Use JSONB for flexible data storage
+CREATE INDEX IX_Promotions_Conditions ON Promotions USING GIN (ApplicableProducts);
 
--- Auto-cleanup old data (run weekly)
-CREATE PROCEDURE sp_CleanupOldData
-AS
+-- Auto-cleanup old data (run weekly via pg_cron or external scheduler)
+CREATE OR REPLACE FUNCTION cleanup_old_data()
+RETURNS void AS $$
 BEGIN
     -- Delete location history older than 90 days
     DELETE FROM LocationHistory
-    WHERE RecordedAt < DATEADD(DAY, -90, GETUTCDATE());
+    WHERE RecordedAt < NOW() - INTERVAL '90 days';
 
     -- Delete audit logs older than 1 year
     DELETE FROM AuditLogs
-    WHERE CreatedAt < DATEADD(YEAR, -1, GETUTCDATE());
-END
+    WHERE CreatedAt < NOW() - INTERVAL '1 year';
+END;
+$$ LANGUAGE plpgsql;
 ```
 
 ### 3.3 Azure Blob Storage
@@ -366,27 +357,27 @@ healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
 ```
 
-### 4.2 Render (API Alternative)
+### 4.2 Neon (Database Alternative)
 
-**When to use:** If you need PostgreSQL instead of SQL Server
-
-| Specification | Value |
-|--------------|-------|
-| **Free Hours** | 750/month |
-| **Memory** | 512 MB |
-| **Sleep** | After 15 min inactive |
-| **PostgreSQL** | 1GB free |
-
-### 4.3 Supabase (Database Alternative)
-
-**When to use:** If PostgreSQL is acceptable
+**When to use:** Alternative PostgreSQL hosting with serverless features
 
 | Specification | Value |
 |--------------|-------|
-| **Storage** | 500 MB |
-| **API Requests** | 2M/month |
-| **Auth Users** | 50,000 |
-| **Edge Functions** | 500K invocations |
+| **Storage** | 512 MB |
+| **Compute** | 191 hours/month |
+| **Branching** | Database branching for dev/test |
+| **Autoscaling** | Scale to zero when idle |
+
+### 4.3 Railway (Database Alternative)
+
+**When to use:** Need more storage or compute
+
+| Specification | Value |
+|--------------|-------|
+| **Credits** | $5/month free |
+| **PostgreSQL** | Included |
+| **Storage** | Pay as you go |
+| **Networking** | Private networking |
 
 ### 4.4 Cloudflare R2 (Storage Alternative)
 
@@ -608,7 +599,7 @@ builder.Services.Configure<TelemetryConfiguration>(config =>
 ```csharp
 // Program.cs
 builder.Services.AddHealthChecks()
-    .AddSqlServer(connectionString, name: "database")
+    .AddNpgSql(connectionString, name: "database")
     .AddAzureBlobStorage(blobConnectionString, name: "storage")
     .AddCheck("api", () => HealthCheckResult.Healthy("API is running"));
 
@@ -640,8 +631,8 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 | Signal | Threshold | Action |
 |--------|-----------|--------|
 | CPU minutes exhausted | >90% of 60 min/day | Upgrade to B1 Basic |
-| Database vCore-seconds | >80K/month | Upgrade to Basic DTU |
-| Storage approaching limit | >28GB | Archive old data or upgrade |
+| Database API requests | >1.5M/month | Optimize queries or upgrade |
+| Database storage limit | >400MB | Archive old data or upgrade |
 | Response times degraded | >5 sec avg | Add caching, optimize queries |
 | Concurrent users | >50 active | Upgrade to B1 or use SignalR Azure |
 
@@ -651,7 +642,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 FREE TIER              BASIC TIER             STANDARD TIER
 ─────────              ──────────             ─────────────
 Azure F1 ($0)    ───►  Azure B1 ($13/mo) ───► Azure S1 ($73/mo)
-Azure SQL Free   ───►  Azure SQL Basic  ───► Azure SQL S0
+Supabase Free   ───►  Supabase Pro ($25)  ───► Self-hosted
 Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 ```
 
@@ -663,7 +654,7 @@ Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 
 | Component | Backup Method | Frequency | Retention |
 |-----------|---------------|-----------|-----------|
-| **SQL Database** | Azure automated | Daily | 7 days (free) |
+| **PostgreSQL** | Supabase automated | Daily | 7 days (free) |
 | **Blob Storage** | Soft delete | On delete | 7 days |
 | **App Code** | Git repository | On commit | Indefinite |
 | **Secrets** | Key Vault (manual) | On change | Indefinite |
@@ -671,13 +662,11 @@ Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 ### 8.2 Recovery Procedures
 
 ```bash
-# Restore database from point-in-time
-az sql db restore \
-  --resource-group diligo-rg \
-  --server diligo-dms-server \
-  --name diligo-dms-db \
-  --dest-name diligo-dms-db-restored \
-  --time "2026-02-01T12:00:00Z"
+# Restore database from Supabase backup (via dashboard or CLI)
+# Supabase provides point-in-time recovery via dashboard
+
+# For self-hosted PostgreSQL:
+pg_restore -h localhost -U postgres -d diligo_dms backup.dump
 
 # Restore blob from soft delete
 az storage blob undelete \
@@ -719,10 +708,10 @@ az storage blob undelete \
 │     │  Private endpoint (upgrade)                              │
 │     ▼                                                           │
 │  ┌─────────────────────────────────────────────────────────┐   │
-│  │                  SQL DATABASE                            │   │
-│  │   - Firewall rules (Azure services only)                 │   │
-│  │   - TDE encryption at rest                               │   │
-│  │   - Audit logging                                        │   │
+│  │                  POSTGRESQL DATABASE                        │   │
+│  │   - Connection via SSL                                      │   │
+│  │   - Row Level Security (RLS)                                │   │
+│  │   - Encryption at rest                                      │   │
 │  └─────────────────────────────────────────────────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -744,5 +733,5 @@ builder.Configuration.AddEnvironmentVariables();
 ## 10. Related Documents
 
 - [07-SECURITY-ARCHITECTURE.md](07-SECURITY-ARCHITECTURE.md) - Security details
-- [adr/ADR-003-azure-free-tier.md](adr/ADR-003-azure-free-tier.md) - Cloud decision
+- [adr/ADR-003-postgresql.md](adr/ADR-003-postgresql.md) - Database decision
 - [adr/ADR-004-vercel-frontend.md](adr/ADR-004-vercel-frontend.md) - Frontend hosting decision

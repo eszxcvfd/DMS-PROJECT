@@ -429,7 +429,7 @@ public class OrderQueryService : IOrderQueryService
 | Layer | Method | Details |
 |-------|--------|---------|
 | **In Transit** | TLS 1.3 | All HTTPS connections |
-| **At Rest (DB)** | TDE | Azure SQL transparent data encryption |
+| **At Rest (DB)** | PostgreSQL encryption | Supabase/Provider encryption at rest |
 | **At Rest (Blob)** | SSE | Azure Storage service encryption |
 | **Passwords** | Argon2id | One-way hashing |
 | **Sensitive Fields** | AES-256 | Phone numbers, addresses (optional) |

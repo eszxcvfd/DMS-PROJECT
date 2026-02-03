@@ -15,7 +15,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 ## Decision Drivers
 
 - **Budget constraint**: Free tier deployment is mandatory
-- **SQL Server requirement**: Must support SQL Server
+- **PostgreSQL database**: Use Supabase or Neon free tier
 - **Reliability**: 99.5% uptime target
 - **Scalability**: Path to scale when needed
 - **Integration**: Seamless with .NET ecosystem
@@ -25,26 +25,27 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 
 ### 1. Azure Free Tier (Primary)
 - App Service F1: 60 CPU min/day, 1GB RAM
-- Azure SQL Free: 32GB, 100K vCore-sec
+- Azure SQL Free: 32GB, 100K vCore-sec (not using - see ADR-003)
+- Supabase PostgreSQL: 500MB (primary database)
 - Blob Storage: 5GB free
 - Application Insights: 5GB/month
 
 ### 2. Railway.app
 - $5 free credits/month
 - PostgreSQL 500MB
-- No SQL Server support
+- Good PostgreSQL hosting option
 - Easy deployment
 
 ### 3. Render.com
 - 750 hours free/month
 - PostgreSQL 1GB
-- No SQL Server support
+- Good PostgreSQL hosting option
 - Auto-sleep after 15 min
 
 ### 4. Oracle Cloud Free Tier
 - 2 AMD VMs always free
 - 20GB block storage
-- No managed SQL Server
+- Good for self-hosted PostgreSQL
 - Complex setup
 
 ### 5. Self-Hosted (VPS)
@@ -59,9 +60,9 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 
 ### Rationale
 
-1. **SQL Server Support**: Only Azure offers a truly free SQL Server option (Azure SQL Free tier with 32GB).
+1. **PostgreSQL via Supabase**: We use Supabase Free tier for PostgreSQL database (500MB) as decided in ADR-003.
 
-2. **Integrated Ecosystem**: Azure App Service + Azure SQL + Azure Blob Storage work seamlessly together.
+2. **Integrated Ecosystem**: Azure App Service + Supabase PostgreSQL + Azure Blob Storage work well together.
 
 3. **.NET Optimization**: Azure App Service is optimized for .NET applications with minimal configuration.
 
@@ -97,12 +98,12 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 │                    │          │                         │           │                 │
 │                    │          ▼                         ▼           │                 │
 │                    │   ┌─────────────────┐       ┌─────────────────┐│                 │
-│                    │   │ Azure SQL Free  │       │ Azure Blob      ││                 │
-│                    │   │                 │       │ (Free 5GB)      ││                 │
-│                    │   │ - 32GB storage  │       │                 ││                 │
-│                    │   │ - 100K vCore-sec│       │ - Product images││                 │
-│                    │   │ - Auto-pause    │       │ - Visit photos  ││                 │
+│                    │   │ Supabase        │       │ Azure Blob      ││                 │
+│                    │   │ (PostgreSQL)    │       │ (Free 5GB)      ││                 │
 │                    │   │                 │       │                 ││                 │
+│                    │   │ - 500MB storage │       │ - Product images││                 │
+│                    │   │ - PostgreSQL 15 │       │ - Visit photos  ││                 │
+│                    │   │ - REST API      │       │                 ││                 │
 │                    │   └─────────────────┘       └─────────────────┘│                 │
 │                    │                                                 │                 │
 │                    │   ┌─────────────────────────────────────────┐  │                 │
@@ -137,7 +138,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 | Component | Provider | Free Tier Limit | Monthly Cost |
 |-----------|----------|-----------------|--------------|
 | API Server | Azure App Service F1 | 60 CPU min/day, 1GB | **$0** |
-| Database | Azure SQL Free | 32GB, 100K vCore-sec | **$0** |
+| Database | Supabase Free | 500MB PostgreSQL | **$0** |
 | Web App | Vercel Hobby | 100GB bandwidth | **$0** |
 | Blob Storage | Azure Blob | 5GB, 20K ops | **$0** |
 | Push Notifications | Firebase FCM | Unlimited | **$0** |
@@ -152,7 +153,7 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 | Auto-sleep after 20 min | Cold start latency (15-30s) | Health ping to keep alive 8AM-8PM |
 | 1GB RAM | Memory constraints | Stream large responses, paginate |
 | No custom domain (F1) | Less professional URL | Use Cloudflare as reverse proxy |
-| 32GB database limit | May fill up | Archive old data monthly |
+| 500MB database limit | May fill up | Archive old data, optimize storage |
 
 ## Consequences
 
@@ -190,8 +191,8 @@ When free tier limits are exceeded:
 | Upgrade | Trigger | Cost Increase |
 |---------|---------|---------------|
 | App Service B1 | CPU/memory limits | +$13/month |
-| Azure SQL Basic | vCore-seconds exhausted | +$5/month |
-| Azure SQL S0 | Storage >32GB | +$15/month |
+| Supabase Pro | Storage >500MB | +$25/month |
+| Neon Pro | Need more features | +$19/month |
 | Vercel Pro | Bandwidth >100GB | +$20/month |
 
 ## References

@@ -2,7 +2,7 @@
 
 ## DILIGO DMS - Architecture Decision Log
 
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-03
 
 ---
 
@@ -22,7 +22,7 @@ Architecture Decision Records (ADRs) are documents that capture important archit
 |----|-------|--------|------|
 | [ADR-001](ADR-001-android-only.md) | Android-Only Mobile Platform | Accepted | 2026-02-02 |
 | [ADR-002](ADR-002-dotnet-api.md) | .NET 8 for API Backend | Accepted | 2026-02-02 |
-| [ADR-003](ADR-003-sql-server.md) | SQL Server for Database | Accepted | 2026-02-02 |
+| [ADR-003](ADR-003-postgresql.md) | PostgreSQL for Database | Accepted | 2026-02-03 |
 | [ADR-004](ADR-004-azure-free-tier.md) | Azure Free Tier for Deployment | Accepted | 2026-02-02 |
 | [ADR-005](ADR-005-jwt-auth.md) | JWT for Authentication | Accepted | 2026-02-02 |
 | [ADR-006](ADR-006-offline-first-mobile.md) | Offline-First Mobile Architecture | Accepted | 2026-02-02 |

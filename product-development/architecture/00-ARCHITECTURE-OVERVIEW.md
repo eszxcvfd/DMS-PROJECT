@@ -3,7 +3,7 @@
 ## Distribution Management System
 
 **Version:** 1.0
-**Last Updated:** 2026-02-02
+**Last Updated:** 2026-02-03
 **Status:** Draft
 
 ---
@@ -19,7 +19,7 @@ DILIGO DMS (Distribution Management System) is a comprehensive solution for mana
 | **Mobile App** | Kotlin (Android) | Native performance, modern language, offline support |
 | **Web Frontend** | React/Next.js or Blazor | Modern SPA, responsive design |
 | **API Backend** | .NET 8 (ASP.NET Core) | Enterprise-grade, cross-platform, high performance |
-| **Database** | SQL Server | Robust RDBMS, excellent .NET integration |
+| **Database** | PostgreSQL | Open source, excellent .NET integration via Npgsql |
 | **Deployment** | Free tier cloud services | Cost-effective, scalable |
 
 ---
@@ -118,8 +118,8 @@ This architecture follows the C4 Model for visualization:
 │                           │                                                 │
 │                           ▼                                                 │
 │           ┌─────────────────────────────────┐                              │
-│           │        SQL Server Database       │                              │
-│           │    (Azure SQL Free / LocalDB)    │                              │
+│           │        PostgreSQL Database         │                              │
+│           │      (Supabase / Neon / Local)      │                              │
 │           └─────────────────────────────────┘                              │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -133,7 +133,7 @@ This architecture follows the C4 Model for visualization:
 |----------|--------|-----------|
 | **Mobile Platform** | Kotlin (Android only) | Target user base, cost-effective |
 | **Backend Framework** | .NET 8 | Enterprise support, performance, ecosystem |
-| **Database** | SQL Server | Required per specification, Azure SQL free tier |
+| **Database** | PostgreSQL | Open source, Supabase/Neon free tier |
 | **API Style** | REST + JSON | Simplicity, wide support, mobile-friendly |
 | **Authentication** | JWT Bearer Tokens | Stateless, mobile-friendly |
 | **Offline Sync** | SQLite + Sync Service | Reliable offline operation |
@@ -184,7 +184,7 @@ For detailed rationale, see [ADR documents](adr/).
 | Component | Primary Option | Alternative |
 |-----------|---------------|-------------|
 | **API Server** | Azure App Service (F1 Free) | Railway.app Free |
-| **Database** | Azure SQL Database (Free tier) | SQL Server Express |
+| **Database** | Supabase Free (PostgreSQL) | Neon Free |
 | **Web App** | Vercel Free | Cloudflare Pages |
 | **File Storage** | Azure Blob (5GB free) | Cloudflare R2 |
 | **Mobile App** | Google Play Console ($25 one-time) | Direct APK |

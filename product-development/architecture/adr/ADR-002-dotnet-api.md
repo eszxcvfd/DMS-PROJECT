@@ -15,7 +15,7 @@ DILIGO DMS requires a robust backend API to serve the mobile and web application
 ## Decision Drivers
 
 - **Specification requirement**: .NET was specified as the API technology
-- **SQL Server integration**: Excellent native support required
+- **PostgreSQL integration**: Excellent support via Npgsql/EF Core
 - **Free tier hosting**: Must run efficiently on Azure App Service F1
 - **Real-time features**: SignalR support for GPS monitoring
 - **Enterprise readiness**: Security, reliability, scalability
@@ -33,12 +33,12 @@ DILIGO DMS requires a robust backend API to serve the mobile and web application
 ### 2. Node.js (Express/Fastify)
 - Fast development
 - Large ecosystem
-- Not as strong SQL Server integration
+- Good PostgreSQL integration via drivers
 - TypeScript adds type safety
 
 ### 3. Java (Spring Boot)
 - Enterprise-grade
-- Strong SQL Server support
+- Strong PostgreSQL support via JDBC
 - More memory usage
 - Higher Azure costs
 
@@ -56,7 +56,7 @@ DILIGO DMS requires a robust backend API to serve the mobile and web application
 
 1. **Requirement Alignment**: .NET was specified as the backend technology, making this a direct fit.
 
-2. **SQL Server Integration**: Entity Framework Core provides first-class SQL Server support with excellent migration tools, LINQ queries, and performance optimization.
+2. **PostgreSQL Integration**: Entity Framework Core with Npgsql provides excellent PostgreSQL support with migrations, LINQ queries, and performance optimization.
 
 3. **Azure Optimization**: .NET 8 runs efficiently on Azure App Service F1 with minimal cold start times due to NativeAOT improvements.
 
@@ -117,7 +117,7 @@ DILIGO DMS requires a robust backend API to serve the mobile and web application
 
 ### Positive
 
-- Native SQL Server support with excellent performance
+- Excellent PostgreSQL support via Npgsql with great performance
 - SignalR for seamless real-time features
 - Strong typing reduces runtime errors
 - Excellent Azure integration and free tier support
