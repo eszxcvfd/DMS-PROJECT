@@ -78,6 +78,7 @@ erDiagram
     %% F. Pricing
     price_list ||--o{ price_list_item : defines_prices
     product ||--o{ price_list_item : priced_in
+    promotion ||--o{ sales_order_line : applied_to_line
     
     %% G. Sales (O2C Flow)
     customer ||--o{ sales_order : places
