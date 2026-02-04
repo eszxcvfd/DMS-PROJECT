@@ -2,13 +2,9 @@
 
 ## Distribution Management System - Database Design
 
-**Version:** 2.0
+**Version:** 3.1
 **Last Updated:** 2026-02-04
-<<<<<<< Updated upstream
-**PRD Reference:** PRD-v2.md (v2.3)
-=======
-**Status:** Approved Draft
->>>>>>> Stashed changes
+**Status:** Approved / Production Ready
 
 ---
 
@@ -26,82 +22,21 @@ This document describes the comprehensive data architecture for DILIGO DMS, rede
 
 ---
 
-## 2. Conceptual Data Model (Groups A-J)
+## 2. Conceptual Data Model (Groups A-K)
 
-The database is organized into 10 functional groups:
+The database is organized into 11 functional groups:
 
-### A. Organization & Access Control
-Manages internal hierarchy and user access.
-- `org_unit`: Organizational tree (Branch, Unit, Sales Group).
-- `employee`: Internal staff profiles.
-- `user_account`: System login credentials.
-- `role`, `permission`, `role_permission`, `user_role`: RBAC security.
-
-### B. Territory & Route Management
-Manages geographical coverage and sales routes.
-- `region`, `province`, `district`, `ward`: Administrative hierarchy.
-- `route`: Sales routes (MCP).
-- `route_assignment`: Assignment of employees to routes (history tracking).
-
-### C. Sales Partners (Distributors)
-Manages the distribution network.
-- `distributor`: Distributors/Dealers information.
-- `distributor_bank_account`: Financial details.
-- `distributor_document`: Contracts and legal docs.
-
-### D. Customers
-Points of sale (POS) and outlets.
-- `customer`: Main customer/outlet entity.
-- `customer_address`: Multiple addresses (Delivery, Billing).
-- `customer_contact`: Key contacts at outlets.
-- `customer_route`: Assignment of customers to routes.
-- `customer_tag`, `tag`: Flexible tagging.
-- **Lookups**: `customer_type`, `customer_group`, `channel`.
-
-### E. Products
-Product catalog and configurations.
-- `product`: Stock Keeping Units (SKUs).
-- `brand`, `category`: Classification.
-- `uom`: Units of Measure (Carton, Box, Pcs).
-- `product_uom_conversion`: Conversion logic (e.g., 1 Carton = 24 Pcs).
-- `product_barcode`: Barcode mapping.
-
-### F. Pricing & Promotion
-Price logic and trade marketing.
-- `price_list`: Header for pricing versions.
-- `price_list_item`: Prices by SKU + UOM.
-- `promotion`: Promo programs.
-- `promotion_rule`: Logic for discounts/gifts.
-- `promotion_customer_scope`: Target audience for promos.
-
-### G. Sales Transactions
-Order to Cash (O2C) flow.
-- `sales_order`, `sales_order_line`: Orders captured by sales force.
-- `sales_order_status_history`: Audit trail of order lifecycle.
-- `delivery`, `delivery_line`: Fulfillment records.
-- `invoice`: Financial documents.
-- `payment`: Collection and debt settlement.
-
-### H. Inventory & Warehousing
-Stock management (Transaction-based).
-- `warehouse`: Storage locations (Distributor warehouse, van stock).
-- `inventory_txn`, `inventory_txn_line`: The **source of truth** for all stock movements (In, Out, Adjust).
-- `inventory_balance_snapshot`: Daily/Monthly snapshots for fast reporting.
-
-### I. Field Force Execution
-Daily activities of sales reps.
-- `visit`: GPS Check-in/out records.
-- `visit_action`: Actions performed (Survey, Order, Issue).
-- `merch_campaign`, `merch_criteria`: Display programs.
-- `merch_audit`, `merch_audit_item`: Display scoring/evaluation.
-- `attachment`: Photos/Files linked to visits.
-- `attendance`, `attendance_event`: Timekeeping.
-
-### J. KPI & Reporting
-Performance management.
-- `kpi_metric`: Definitions (Revenue, Visit Rate, etc.).
-- `kpi_target`: Targets appointed to staff/route.
-- `kpi_result`: Calculated results.
+- **Group A (Organization)**: Internal hierarchy and RBAC.
+- **Group B (Territory)**: Routes and administrative units.
+- **Group C (Distributors)**: Partner management.
+- **Group D (Customers)**: Outlets and Points of Sale.
+- **Group E (Products)**: SKU management.
+- **Group F (Pricing)**: Price lists and promotions.
+- **Group G (Sales O2C)**: Orders, Delivery, Invoice, Payment.
+- **Group H (Inventory)**: Transaction-based stock management.
+- **Group I (Field Force)**: Visits, Photos, Attendance.
+- **Group J (KPI)**: Targets and Metrics.
+- **Group K (System)**: Audit Logs.
 
 ---
 
@@ -110,69 +45,98 @@ Performance management.
 ```mermaid
 erDiagram
     %% A. Organization
+    org_unit ||--o{ org_unit : parent_of
     org_unit ||--o{ employee : has
     employee ||--o{ user_account : linked_to
     user_account ||--o{ user_role : has
     role ||--o{ user_role : assigned
     role ||--o{ role_permission : defines
+    permission ||--o{ role_permission : granted_in
 
-    %% B. Territory
-    route ||--o{ route_assignment : assigned
+    %% B. Territory & Route
+    region ||--o{ distributor : located_in
+    distributor ||--o{ route : manages
+    route ||--o{ route_assignment : assigned_to
     employee ||--o{ route_assignment : works_on
 
     %% C. Distributor
     distributor ||--o{ warehouse : owns
+    distributor ||--o{ distributor_bank_account : has
 
     %% D. Customer
-    customer ||--o{ customer_address : has
-    customer ||--o{ customer_route : in_route
-    route ||--o{ customer_route : contains
-    customer ||--o{ sales_order : places
+    customer_group ||--o{ customer : groups
+    distributor ||--o{ customer : serves
+    customer ||--o{ customer_address : has_addresses
+    customer ||--o{ customer_route : assigned_route
+    route ||--o{ customer_route : contains_customer
 
     %% E. Product
-    category ||--o{ product : classifies
+    brand ||--o{ product : owns
     product ||--o{ product_uom_conversion : has_units
-    product ||--o{ sales_order_line : sold_as
-
+    uom ||--o{ product_uom_conversion : unit_def
+    
     %% F. Pricing
-    price_list ||--o{ price_list_item : contains
-    customer ||--o{ price_list : assigned_list
-
-    %% G. Sales
+    price_list ||--o{ price_list_item : defines_prices
+    product ||--o{ price_list_item : priced_in
+    
+    %% G. Sales (O2C Flow)
+    customer ||--o{ sales_order : places
+    distributor ||--o{ sales_order : fulfills
     sales_order ||--o{ sales_order_line : contains
-    sales_order ||--o{ delivery : triggers
+    product ||--o{ sales_order_line : sold_item
+    sales_order ||--o{ sales_order_status_history : has_history
+    
+    sales_order ||--o{ delivery : triggers_delivery
+    delivery ||--o{ delivery_line : contains_items
     delivery ||--o{ invoice : billed_via
     invoice ||--o{ payment : paid_by
 
     %% H. Inventory
-    warehouse ||--o{ inventory_txn : source_dest
-    inventory_txn ||--o{ inventory_txn_line : contains
+    warehouse ||--o{ inventory_txn : logs_transaction
+    inventory_txn ||--o{ inventory_txn_line : contains_items
+    warehouse ||--o{ inventory_balance : has_stock_snapshot
 
     %% I. Field Force
-    user_account ||--o{ visit : performs
-    visit ||--o{ visit_action : logs
-    visit ||--o{ merch_audit : includes
+    employee ||--o{ visit : performs
+    customer ||--o{ visit : received_at
+    visit ||--o{ visit_action : logs_action
     visit ||--o{ attachment : has_photos
+    employee ||--o{ attendance : checkin_checkout
+
+    %% J. KPI
+    kpi_metric ||--o{ kpi_target : measures
+
+    %% K. System
+    user_account ||--o{ system_audit_log : caused_change
 ```
 
 ---
 
 ## 4. Detailed Physical Schema (SQL Definitions)
 
+**Giải thích các kiểu dữ liệu đặc biệt:**
+- **`UUID`**: Khóa chính ngẫu nhiên toàn cục, không dùng số tự tăng để tránh lộ quy mô dữ liệu và dễ dàng merge DB từ nhiều nguồn.
+- **`TIMESTAMPTZ`**: Lưu thời gian kèm múi giờ (UTC). Quan trọng cho hệ thống chạy đa miền.
+- **`JSONB`**: Lưu dữ liệu cấu trúc động (NoSQL) ngay trong SQL, giúp không phải tạo quá nhiều cột dư thừa.
+- **`INT[]`**: Mảng số nguyên. Dùng để lưu danh sách Id nhỏ (ví dụ: thứ trong tuần) mà không cần tạo bảng phụ.
+- **`GIST Index`**: Index đặc biệt hỗ trợ tìm kiếm không gian (Geospatial) và thời gian (Time-range).
+
 ### A. Organization – Người dùng – Phân quyền
 
 ```sql
+-- Đơn vị tổ chức (Cây phòng ban/nhóm bán hàng)
 CREATE TABLE org_unit (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) NOT NULL UNIQUE,
+    code VARCHAR(50) NOT NULL UNIQUE, -- Mã đơn vị (nghiệp vụ)
     name VARCHAR(255) NOT NULL,
-    parent_id UUID REFERENCES org_unit(id),
+    parent_id UUID REFERENCES org_unit(id), -- Đệ quy (Cha con)
     type VARCHAR(50) NOT NULL, -- 'BRANCH', 'UNIT', 'TEAM'
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ -- Soft Delete support
+    deleted_at TIMESTAMPTZ -- Soft Delete: Không xóa thật, chỉ đánh dấu ngày xóa
 );
 
+-- Hồ sơ nhân viên (NVBH, GSBH...)
 CREATE TABLE employee (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL UNIQUE,
@@ -184,212 +148,72 @@ CREATE TABLE employee (
     deleted_at TIMESTAMPTZ
 );
 
+-- Tài khoản đăng nhập App/Web
 CREATE TABLE user_account (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Mật khẩu đã mã hóa (BCrypt/Argon2)
     employee_id UUID REFERENCES employee(id),
     last_login_at TIMESTAMPTZ,
     status VARCHAR(20) DEFAULT 'ACTIVE',
     deleted_at TIMESTAMPTZ
 );
 
+-- Định nghĩa Vai trò (Role)
 CREATE TABLE role (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) NOT NULL UNIQUE,
+    code VARCHAR(50) NOT NULL UNIQUE, -- VD: 'SALES_REP', 'MANAGER'
     name VARCHAR(100) NOT NULL
 );
 
+-- Định nghĩa Quyền hạn nhỏ nhất (Atomic Permission)
 CREATE TABLE permission (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(100) NOT NULL UNIQUE, -- e.g. 'order.create'
+    code VARCHAR(100) NOT NULL UNIQUE, -- VD: 'order.create', 'order.view'
     description TEXT
 );
 
+-- Gán Quyền cho Vai trò (Role-Permission)
 CREATE TABLE role_permission (
     role_id UUID REFERENCES role(id),
     permission_id UUID REFERENCES permission(id),
     PRIMARY KEY (role_id, permission_id)
 );
 
-<<<<<<< Updated upstream
-CREATE TABLE RouteCustomers (
-    RouteCustomerId     UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    RouteId             UUID                NOT NULL REFERENCES Routes(RouteId),
-    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
-    VisitOrder          INT                 NOT NULL,
-
-    CONSTRAINT UQ_Route_Customer UNIQUE (RouteId, CustomerId)
-);
-
-CREATE INDEX IX_Routes_AssignedUser ON Routes(AssignedUserId, DayOfWeek);
-```
-
-#### Visits
-
-```sql
-CREATE TABLE Visits (
-    VisitId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    RouteId             UUID                NULL REFERENCES Routes(RouteId),
-    VisitDate           DATE                NOT NULL,
-    CheckInTime         TIMESTAMPTZ         NOT NULL,
-    CheckInLatitude     DECIMAL(10,7)       NOT NULL,
-    CheckInLongitude    DECIMAL(10,7)       NOT NULL,
-    CheckInDistance     INT                 NULL, -- Distance from customer location in meters
-    CheckOutTime        TIMESTAMPTZ         NULL,
-    CheckOutLatitude    DECIMAL(10,7)       NULL,
-    CheckOutLongitude   DECIMAL(10,7)       NULL,
-    VisitType           VARCHAR(20)         NOT NULL, -- 'InRoute', 'OutOfRoute'
-    VisitResult         VARCHAR(20)         NOT NULL, -- 'HasOrder', 'NoOrder', 'Closed', 'OwnerAway'
-    HasPhotos           BOOLEAN             NOT NULL DEFAULT FALSE,
-    Notes               TEXT                NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_Visits_Customer ON Visits(CustomerId, VisitDate DESC);
-CREATE INDEX IX_Visits_User ON Visits(UserId, VisitDate DESC);
-CREATE INDEX IX_Visits_Date ON Visits(VisitDate);
-```
-
-#### Visit Photos
-
-```sql
-CREATE TABLE VisitPhotos (
-    PhotoId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    VisitId             UUID                NOT NULL REFERENCES Visits(VisitId),
-    AlbumType           VARCHAR(50)         NOT NULL, -- 'TrungBay', 'MatTien', 'POSM', etc.
-    ImageUrl            VARCHAR(500)        NOT NULL,
-    ThumbnailUrl        VARCHAR(500)        NULL,
-    Latitude            DECIMAL(10,7)       NOT NULL,
-    Longitude           DECIMAL(10,7)       NOT NULL,
-    CapturedAt          TIMESTAMPTZ         NOT NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_VisitPhotos_Visit ON VisitPhotos(VisitId);
-CREATE INDEX IX_VisitPhotos_Album ON VisitPhotos(AlbumType, CapturedAt DESC);
-```
-
-#### Orders
-
-```sql
-CREATE TABLE Orders (
-    OrderId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    OrderNumber         VARCHAR(20)         NOT NULL UNIQUE,
-    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    VisitId             UUID                NULL REFERENCES Visits(VisitId),
-    OrderDate           TIMESTAMPTZ         NOT NULL,
-    OrderType           VARCHAR(20)         NOT NULL DEFAULT 'PreSales', -- [v2.0] 'PreSales', 'VanSales'
-    Status              VARCHAR(20)         NOT NULL, -- 'Draft', 'Pending', 'Approved', 'Rejected', 'Delivered'
-    SubTotal            DECIMAL(18,2)       NOT NULL,
-    DiscountAmount      DECIMAL(18,2)       NOT NULL DEFAULT 0,
-    TaxAmount           DECIMAL(18,2)       NOT NULL DEFAULT 0,
-    TotalAmount         DECIMAL(18,2)       NOT NULL,
-    Notes               TEXT                NULL,
-    ApprovedBy          UUID                NULL REFERENCES Users(UserId),
-    ApprovedAt          TIMESTAMPTZ         NULL,
-    RejectionReason     VARCHAR(500)        NULL,
-    VanSaleWarehouseId  UUID                NULL REFERENCES Warehouses(WarehouseId), -- [v2.0] For Van-sales orders
-    SyncStatus          VARCHAR(20)         NOT NULL DEFAULT 'Synced', -- 'Pending', 'Synced', 'Failed'
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_Orders_Customer ON Orders(CustomerId, OrderDate DESC);
-CREATE INDEX IX_Orders_User ON Orders(UserId, OrderDate DESC);
-CREATE INDEX IX_Orders_Status ON Orders(Status, OrderDate DESC);
-CREATE INDEX IX_Orders_Distributor ON Orders(DistributorId, OrderDate DESC);
-CREATE INDEX IX_Orders_Type ON Orders(OrderType, OrderDate DESC); -- [v2.0]
-```
-
-#### Order Details
-
-```sql
-CREATE TABLE OrderDetails (
-    DetailId            UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    OrderId             UUID                NOT NULL REFERENCES Orders(OrderId) ON DELETE CASCADE,
-    ProductId           UUID                NOT NULL REFERENCES Products(ProductId),
-    Quantity            INT                 NOT NULL,
-    UnitType            VARCHAR(10)         NOT NULL, -- 'Main', 'Sub'
-    UnitPrice           DECIMAL(18,2)       NOT NULL,
-    DiscountPercent     DECIMAL(5,2)        NOT NULL DEFAULT 0,
-    DiscountAmount      DECIMAL(18,2)       NOT NULL DEFAULT 0,
-    TaxAmount           DECIMAL(18,2)       NOT NULL DEFAULT 0,
-    LineTotal           DECIMAL(18,2)       NOT NULL,
-    PromotionId         UUID                NULL REFERENCES Promotions(PromotionId),
-    Notes               VARCHAR(200)        NULL
-);
-
-CREATE INDEX IX_OrderDetails_Order ON OrderDetails(OrderId);
-CREATE INDEX IX_OrderDetails_Product ON OrderDetails(ProductId);
-```
-
-### 3.3 Inventory & Finance
-
-#### Warehouses
-
-```sql
-CREATE TABLE Warehouses (
-    WarehouseId         UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    WarehouseCode       VARCHAR(20)         NOT NULL,
-    Name                VARCHAR(100)        NOT NULL,
-    WarehouseType       VARCHAR(20)         NOT NULL DEFAULT 'Main', -- [v2.0] 'Main', 'VanSale'
-    AssignedUserId      UUID                NULL REFERENCES Users(UserId), -- [v2.0] For Van-sale warehouses
-    Address             VARCHAR(500)        NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_Warehouses_Type ON Warehouses(WarehouseType) WHERE WarehouseType = 'VanSale';
-CREATE INDEX IX_Warehouses_AssignedUser ON Warehouses(AssignedUserId) WHERE AssignedUserId IS NOT NULL;
-
-CREATE TABLE ProductStock (
-    StockId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    WarehouseId         UUID                NOT NULL REFERENCES Warehouses(WarehouseId),
-    ProductId           UUID                NOT NULL REFERENCES Products(ProductId),
-    Quantity            INT                 NOT NULL DEFAULT 0,
-    ReservedQuantity    INT                 NOT NULL DEFAULT 0, -- For pending orders
-    LastUpdated         TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT UQ_Product_Warehouse UNIQUE (WarehouseId, ProductId)
-=======
+-- Gán Vai trò cho Người dùng (User-Role)
 CREATE TABLE user_role (
     user_id UUID REFERENCES user_account(id),
     role_id UUID REFERENCES role(id),
     PRIMARY KEY (user_id, role_id)
->>>>>>> Stashed changes
 );
 ```
 
 ### B. Địa bàn – Tuyến – Phân công
 
 ```sql
+-- Đơn vị hành chính
 CREATE TABLE region (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) UNIQUE,
     name VARCHAR(100)
 );
 
+-- Tuyến bán hàng (Route)
 CREATE TABLE route (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
-    distributor_id UUID NOT NULL, -- Logical link to Distributor
+    distributor_id UUID NOT NULL, -- Link logical tới NPP sở hữu tuyến
     status VARCHAR(20) DEFAULT 'ACTIVE'
 );
 
+-- Lịch sử phân công nhân viên phụ trách tuyến (SCD Type 2)
 CREATE TABLE route_assignment (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     route_id UUID REFERENCES route(id),
     employee_id UUID REFERENCES employee(id),
-    start_date DATE NOT NULL,
-    end_date DATE,
+    start_date DATE NOT NULL, -- Ngày bắt đầu phụ trách
+    end_date DATE,            -- Ngày kết thúc (NULL = Đang phụ trách)
     is_primary BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -398,6 +222,7 @@ CREATE TABLE route_assignment (
 ### C. Đối tác bán hàng (Distributor)
 
 ```sql
+-- Nhà phân phối / Đại lý
 CREATE TABLE distributor (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL UNIQUE,
@@ -409,6 +234,7 @@ CREATE TABLE distributor (
     deleted_at TIMESTAMPTZ
 );
 
+-- Tài khoản ngân hàng NPP (để thanh toán)
 CREATE TABLE distributor_bank_account (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     distributor_id UUID REFERENCES distributor(id),
@@ -421,26 +247,29 @@ CREATE TABLE distributor_bank_account (
 ### D. Khách hàng (Customer)
 
 ```sql
+-- Nhóm khách hàng (Phân khúc)
 CREATE TABLE customer_group (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) UNIQUE,
     name VARCHAR(100)
 );
 
+-- Điểm bán hàng (Retail Outlet)
 CREATE TABLE customer (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
     distributor_id UUID REFERENCES distributor(id),
     customer_group_id UUID REFERENCES customer_group(id),
-    channel VARCHAR(50), -- 'GT', 'MT'
+    channel VARCHAR(50), -- 'GT' (Tạp hóa), 'MT' (Siêu thị)
     type VARCHAR(50), -- 'PHARMACY', 'GROCERY'
-    credit_limit DECIMAL(18,2) DEFAULT 0, -- Added traceability field
+    credit_limit DECIMAL(18,2) DEFAULT 0, -- Hạn mức tín dụng (Traceability)
     status VARCHAR(20) DEFAULT 'ACTIVE',
     deleted_at TIMESTAMPTZ,
-    CONSTRAINT uq_dist_cust_code UNIQUE (distributor_id, code)
+    CONSTRAINT uq_dist_cust_code UNIQUE (distributor_id, code) -- Mã KH duy nhất theo NPP
 );
 
+-- Đa địa chỉ (Giao hàng, Hóa đơn)
 CREATE TABLE customer_address (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID REFERENCES customer(id),
@@ -448,159 +277,57 @@ CREATE TABLE customer_address (
     ward_id VARCHAR(20),
     district_id VARCHAR(20),
     province_id VARCHAR(20),
-    latitude DECIMAL(10,8),
+    latitude DECIMAL(10,8), -- Tọa độ GPS
     longitude DECIMAL(11,8),
     is_default BOOLEAN DEFAULT FALSE
 );
 
+-- Phân tuyến cho KH (Tần suất thăm)
 CREATE TABLE customer_route (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     customer_id UUID REFERENCES customer(id),
     route_id UUID REFERENCES route(id),
-    visit_frequency VARCHAR(20), -- 'F2', 'F4', 'F8'
-    visit_days INT[], -- [2,4,6] Array for query optimization (Mon, Wed, Fri)
+    visit_frequency VARCHAR(20), -- 'F2' (2 tuần/lần), 'F4', 'F8'
+    visit_days INT[], -- [2,4,6] -> Thứ 2, 4, 6. Dùng mảng INT[] để query cực nhanh.
     start_date DATE NOT NULL,
     end_date DATE
 );
 ```
 
-<<<<<<< Updated upstream
-### 3.5 KPI Management (NEW in v2.0)
-
-#### KPI Targets
-
-```sql
--- KPI Target assignments for employees
-CREATE TABLE KPITargets (
-    KPITargetId         UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    TargetMonth         DATE                NOT NULL, -- First day of target month
-    VisitTarget         INT                 NULL, -- Số KH viếng thăm/tháng
-    NewCustomerTarget   INT                 NULL, -- Số KH mới/tháng
-    OrderTarget         INT                 NULL, -- Số đơn hàng/tháng
-    RevenueTarget       DECIMAL(18,2)       NULL, -- Doanh số/tháng
-    NetRevenueTarget    DECIMAL(18,2)       NULL, -- Doanh thu/tháng
-    VolumeTarget        INT                 NULL, -- Sản lượng/tháng
-    SKUTarget           INT                 NULL, -- Tổng SKU/tháng
-    WorkingHoursTarget  DECIMAL(5,2)        NULL, -- Số giờ làm việc
-    EffectiveFrom       DATE                NOT NULL,
-    EffectiveTo         DATE                NULL,
-    CreatedBy           UUID                NOT NULL REFERENCES Users(UserId),
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT UQ_KPI_User_Month UNIQUE (UserId, TargetMonth)
-);
-
-CREATE INDEX IX_KPITargets_User ON KPITargets(UserId, TargetMonth DESC);
-CREATE INDEX IX_KPITargets_Distributor ON KPITargets(DistributorId, TargetMonth DESC);
-
--- Focus product KPI targets
-CREATE TABLE KPIProductTargets (
-    ProductTargetId     UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    KPITargetId         UUID                NOT NULL REFERENCES KPITargets(KPITargetId) ON DELETE CASCADE,
-    ProductId           UUID                NOT NULL REFERENCES Products(ProductId),
-    QuantityTarget      INT                 NOT NULL,
-    RevenueTarget       DECIMAL(18,2)       NULL,
-
-    CONSTRAINT UQ_KPI_Product UNIQUE (KPITargetId, ProductId)
-);
-```
-
-### 3.6 Organizational Structure (NEW in v2.0)
-
-```sql
--- Hierarchical organizational units
-CREATE TABLE OrganizationUnits (
-    UnitId              UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NULL REFERENCES Distributors(DistributorId),
-    UnitCode            VARCHAR(20)         NOT NULL,
-    UnitName            VARCHAR(100)        NOT NULL,
-    ParentUnitId        UUID                NULL REFERENCES OrganizationUnits(UnitId),
-    HierarchyPath       VARCHAR(500)        NOT NULL, -- e.g., "1.1.1.2.1.1"
-    IsSupervisorUnit    BOOLEAN             NOT NULL DEFAULT FALSE, -- Giám sát
-    IsSalesGroup        BOOLEAN             NOT NULL DEFAULT FALSE, -- Nhóm bán hàng
-    Level               INT                 NOT NULL DEFAULT 0,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_OrgUnits_Parent ON OrganizationUnits(ParentUnitId);
-CREATE INDEX IX_OrgUnits_Hierarchy ON OrganizationUnits(HierarchyPath);
-CREATE INDEX IX_OrgUnits_Distributor ON OrganizationUnits(DistributorId);
-
--- User to Organization Unit mapping
-CREATE TABLE UserOrganizationUnits (
-    UserOrgId           UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    UnitId              UUID                NOT NULL REFERENCES OrganizationUnits(UnitId),
-    IsPrimary           BOOLEAN             NOT NULL DEFAULT TRUE,
-
-    CONSTRAINT UQ_User_Unit UNIQUE (UserId, UnitId)
-);
-```
-
-### 3.7 Display Scoring (NEW in v2.0)
-
-```sql
--- VIP Display scoring for photos
-CREATE TABLE DisplayScores (
-    ScoreId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    VisitId             UUID                NOT NULL REFERENCES Visits(VisitId),
-    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
-    CapturedByUserId    UUID                NOT NULL REFERENCES Users(UserId), -- NV Chụp thực tế
-    PhotoCount          INT                 NOT NULL DEFAULT 0, -- SL Hình đã up
-    UploadDate          DATE                NOT NULL, -- Ngày Upload
-    ScoredByUserId      UUID                NULL REFERENCES Users(UserId), -- NV chấm điểm
-    ScoredDate          DATE                NULL, -- Ngày chấm
-    IsPassed            BOOLEAN             NULL, -- Đạt/Không đạt
-    Revenue             DECIMAL(18,2)       NULL, -- Doanh số KH
-    Notes               TEXT                NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
-
-CREATE INDEX IX_DisplayScores_Customer ON DisplayScores(CustomerId, UploadDate DESC);
-CREATE INDEX IX_DisplayScores_CapturedBy ON DisplayScores(CapturedByUserId, UploadDate DESC);
-CREATE INDEX IX_DisplayScores_Pending ON DisplayScores(ScoredByUserId) WHERE ScoredByUserId IS NULL;
-```
-
-### 3.8 Monitoring & Tracking
-
-#### Attendance
-=======
 ### E. Sản phẩm (Product)
->>>>>>> Stashed changes
 
 ```sql
+-- Thương hiệu / Nhãn hàng
 CREATE TABLE brand (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL
 );
 
+-- Danh mục sản phẩm (Master)
 CREATE TABLE product (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) NOT NULL UNIQUE,
+    code VARCHAR(50) NOT NULL UNIQUE, -- SKU
     name VARCHAR(255) NOT NULL,
     brand_id UUID REFERENCES brand(id),
-    brand_id UUID REFERENCES brand(id),
-    primary_uom_id UUID, 
+    primary_uom_id UUID, -- Đơn vị tính chính
     status VARCHAR(20) DEFAULT 'ACTIVE',
     deleted_at TIMESTAMPTZ
 );
 
+-- Đơn vị tính (Thùng, Hộp, Cái)
 CREATE TABLE uom (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(20) NOT NULL, 
     name VARCHAR(50)
 );
 
+-- Quy đổi đơn vị (1 Thùng = 24 Cái)
 CREATE TABLE product_uom_conversion (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     product_id UUID REFERENCES product(id),
     from_uom_id UUID REFERENCES uom(id),
     to_uom_id UUID REFERENCES uom(id),
-    factor DECIMAL(10,4) NOT NULL,
+    factor DECIMAL(10,4) NOT NULL, -- Hệ số nhân
     is_base BOOLEAN DEFAULT FALSE
 );
 ```
@@ -608,6 +335,7 @@ CREATE TABLE product_uom_conversion (
 ### F. Giá – Khuyến mãi
 
 ```sql
+-- Bảng giá (Price Header)
 CREATE TABLE price_list (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL,
@@ -618,14 +346,16 @@ CREATE TABLE price_list (
     deleted_at TIMESTAMPTZ
 );
 
+-- Chi tiết giá (Item Price)
 CREATE TABLE price_list_item (
     price_list_id UUID REFERENCES price_list(id),
     product_id UUID REFERENCES product(id),
     uom_id UUID REFERENCES uom(id),
     price DECIMAL(18,2) NOT NULL,
-    PRIMARY KEY (price_list_id, product_id, uom_id)
+    PRIMARY KEY (price_list_id, product_id, uom_id) -- Composite PK
 );
 
+-- Chương trình khuyến mãi
 CREATE TABLE promotion (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL,
@@ -640,6 +370,7 @@ CREATE TABLE promotion (
 ### G. Bán hàng (Full O2C Flow)
 
 ```sql
+-- Đơn hàng (Sale Order)
 CREATE TABLE sales_order (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_number VARCHAR(50) NOT NULL UNIQUE,
@@ -657,28 +388,30 @@ CREATE TABLE sales_order (
     deleted_at TIMESTAMPTZ
 );
 
+-- Chi tiết dòng hàng (Order Line)
 CREATE TABLE sales_order_line (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sales_order_id UUID REFERENCES sales_order(id),
     product_id UUID REFERENCES product(id),
     uom_id UUID REFERENCES uom(id),
     quantity DECIMAL(12,4) NOT NULL,
-    unit_price DECIMAL(18,2) NOT NULL, -- Snapshot of price at time of order (Traceability)
+    unit_price DECIMAL(18,2) NOT NULL, -- Snapshot giá tại thời điểm bán (để truy vết sau này nếu bảng giá đổi)
     total_price DECIMAL(18,2) NOT NULL,
-    promotion_id UUID REFERENCES promotion(id), -- Traceability: Which promo applied?
+    promotion_id UUID REFERENCES promotion(id), -- Bán do KM nào?
     discount_amount DECIMAL(18,2) DEFAULT 0
 );
 
+-- Lịch sử trạng thái đơn hàng (Audit Trail)
 CREATE TABLE sales_order_status_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     sales_order_id UUID REFERENCES sales_order(id),
     from_status VARCHAR(20),
     to_status VARCHAR(20),
-    changed_by UUID REFERENCES user_account(id),
+    changed_by UUID REFERENCES user_account(id), -- Ai đổi trạng thái?
     changed_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Fulfillment: Delivery Note / Phieu Xuat Kho
+-- Phiếu xuất kho / Giao hàng (Delivery Note)
 CREATE TABLE delivery (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     delivery_number VARCHAR(50) NOT NULL UNIQUE,
@@ -695,24 +428,24 @@ CREATE TABLE delivery_line (
     product_id UUID REFERENCES product(id),
     uom_id UUID REFERENCES uom(id),
     quantity_ordered DECIMAL(12,4) NOT NULL,
-    quantity_delivered DECIMAL(12,4) NOT NULL -- Supports partial delivery
+    quantity_delivered DECIMAL(12,4) NOT NULL -- Cho phép giao thiếu (Partial Delivery)
 );
 
--- Finance: Invoice / Hoa Don
+-- Hóa đơn tài chính (Invoice)
 CREATE TABLE invoice (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     invoice_number VARCHAR(50) NOT NULL UNIQUE,
-    sales_order_id UUID REFERENCES sales_order(id), -- Or refer delivery_id
+    sales_order_id UUID REFERENCES sales_order(id),
     customer_id UUID REFERENCES customer(id),
     order_date DATE,
     invoice_date DATE,
-    due_date DATE,
+    due_date DATE, -- Hạn thanh toán
     total_amount DECIMAL(18,2),
     tax_amount DECIMAL(18,2),
     status VARCHAR(20) -- 'DRAFT', 'ISSUED', 'PAID', 'OVERDUE'
 );
 
--- Finance: Payment / Thanh Toan
+-- Thanh toán (Payment / Collection)
 CREATE TABLE payment (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     payment_number VARCHAR(50) NOT NULL UNIQUE,
@@ -728,16 +461,18 @@ CREATE TABLE payment (
 ### H. Kho – Tồn – XNT (High Performance)
 
 ```sql
+-- Kho hàng
 CREATE TABLE warehouse (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code VARCHAR(50) NOT NULL,
     name VARCHAR(100),
     distributor_id UUID REFERENCES distributor(id),
-    type VARCHAR(20), -- 'MAIN', 'VAN_SALES'
+    type VARCHAR(20), -- 'MAIN' (Kho cái), 'VAN_SALES' (Kho xe)
     deleted_at TIMESTAMPTZ
 );
 
--- Snapshot Table for High-Performance Queries
+-- Bảng Tồn kho Snapshot (Hiệu năng cao)
+-- Dùng để query tồn kho tức thì, không cần tính toán lại từ đầu.
 CREATE TABLE inventory_balance (
     warehouse_id UUID REFERENCES warehouse(id),
     product_id UUID REFERENCES product(id),
@@ -746,14 +481,15 @@ CREATE TABLE inventory_balance (
     PRIMARY KEY (warehouse_id, product_id)
 );
 
--- Transaction Table (Source of Truth)
+-- Bảng Giao dịch kho (Source of Truth)
+-- Mọi thay đổi tồn kho ĐỀU PHẢI ghi log vào đây.
 CREATE TABLE inventory_txn (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     txn_number VARCHAR(50) NOT NULL,
     warehouse_id UUID REFERENCES warehouse(id),
     txn_type VARCHAR(50) NOT NULL, -- 'IMPORT', 'EXPORT_SALES', 'ADJUSTMENT'
     txn_date TIMESTAMPTZ DEFAULT NOW(),
-    reference_id UUID, 
+    reference_id UUID, -- ID của SO hoặc PO liên quan
     reference_type VARCHAR(50), 
     status VARCHAR(20)
 );
@@ -764,26 +500,88 @@ CREATE TABLE inventory_txn_line (
     product_id UUID REFERENCES product(id),
     uom_id UUID REFERENCES uom(id),
     quantity DECIMAL(12,4) NOT NULL, 
-    direction INT NOT NULL -- 1 for IN, -1 for OUT
+    direction INT NOT NULL -- 1 (Nhập), -1 (Xuất)
 );
 ```
 
-### I. Field Force (No changes needed)
-*(Refer to Group I in overview)*
-
-### J. KPI (No changes needed)
-*(Refer to Group J in overview)*
-
-### K. System & Audit (New)
+### I. Field Force (Giám sát thực địa)
 
 ```sql
+-- Viếng thăm (Visit)
+CREATE TABLE visit (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    salesman_id UUID REFERENCES employee(id),
+    customer_id UUID REFERENCES customer(id),
+    route_id UUID REFERENCES route(id),
+    checkin_time TIMESTAMPTZ NOT NULL,
+    checkout_time TIMESTAMPTZ,
+    checkin_lat DECIMAL(10,8),
+    checkin_long DECIMAL(11,8),
+    status VARCHAR(20) -- 'COMPLETED', 'IN_PROGRESS'
+);
+
+-- Các hoạt động trong viếng thăm
+CREATE TABLE visit_action (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    visit_id UUID REFERENCES visit(id),
+    action_type VARCHAR(50), -- 'ORDER', 'SURVEY', 'PHOTO'
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Hình ảnh/File đính kèm
+CREATE TABLE attachment (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    visit_id UUID REFERENCES visit(id),
+    file_url VARCHAR(500) NOT NULL,
+    file_type VARCHAR(50), -- 'IMAGE', 'DOC'
+    tag VARCHAR(50) -- 'SHELF' (Quầy kệ), 'PROMO' (Khuyến mãi)
+);
+
+-- Chấm công GPS
+CREATE TABLE attendance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    employee_id UUID REFERENCES employee(id),
+    date DATE NOT NULL,
+    checkin_time TIMESTAMPTZ,
+    checkout_time TIMESTAMPTZ,
+    status VARCHAR(20)
+);
+```
+
+### J. KPI (Performance)
+
+```sql
+-- Định nghĩa chỉ tiêu (Doanh số, Viếng thăm)
+CREATE TABLE kpi_metric (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(100)
+);
+
+-- Giao chỉ tiêu cho nhân viên
+CREATE TABLE kpi_target (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    metric_id UUID REFERENCES kpi_metric(id),
+    target_type VARCHAR(20), -- 'EMPLOYEE', 'ORG_UNIT'
+    target_id UUID, -- EmployeeID hoặc OrgUnitID
+    period_start DATE,
+    period_end DATE,
+    target_value DECIMAL(18,2)
+);
+```
+
+### K. System & Audit (Truy vết hệ thống)
+
+```sql
+-- Nhật ký thay đổi dữ liệu (Audit Log)
+-- Lưu lại mọi thay đổi quan trọng để kiểm tra ai làm gì, khi nào.
 CREATE TABLE system_audit_log (
     id BIGSERIAL PRIMARY KEY,
     table_name VARCHAR(50) NOT NULL,
     record_id UUID NOT NULL,
     action VARCHAR(10) NOT NULL, -- 'INSERT', 'UPDATE', 'DELETE'
-    old_value JSONB,
-    new_value JSONB,
+    old_value JSONB, -- Dữ liệu cũ (trước khi sửa)
+    new_value JSONB, -- Dữ liệu mới
     changed_by UUID REFERENCES user_account(id),
     changed_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -793,60 +591,44 @@ CREATE TABLE system_audit_log (
 
 ## 5. Indexing & Partitioning Strategy
 
-### Indexing
-1.  **Search Performance**: `GIN` indexes on `product(name)` and `customer(name)` for fast text search.
-2.  **Geospatial**: `GIST` indexes on `customer_address(latitude, longitude)` for radius search.
-3.  **Foreign Keys**: All FK columns must be indexed to avoid table scan locks during updates.
-4.  **Covering Indexes**: `sales_order(customer_id, order_date) INCLUDE (total_amount)` for reporting.
-5.  **Partial Indexing (Soft Delete Optimization)**:
-    - Create indexes ONLY on active records to reduce index size and improve speed.
-    - Example: `CREATE INDEX idx_product_active ON product(code) WHERE deleted_at IS NULL;`
-
-### Delete Strategy (Soft vs Hard)
-1.  **Soft Delete**: All Master Data (Customer, Product, Employee) and Transactions (Order, Invoice) use `deleted_at`.
-    - **Advantage**: Traceability, Recovery, Audit.
-    - **Implementation**: Application filters `WHERE deleted_at IS NULL` by default.
-2.  **Hard Delete**: Only allowed for:
-    - Temporary staging tables.
-    - `system_audit_log` (Archived then purged after X years).
-    - `inventory_balance` (Recalculated from transactions).
-
-### Partitioning
-1.  **`sales_order` & `sales_order_line`**: Partition by Range on `order_date` (Monthly).
-2.  **`inventory_txn`**: Partition by Range on `txn_date` (Monthly).
-3.  **`visit`**: Partition by Range on `checkin_time` (Monthly).
+### Indexing Strategies
+1.  **Search Indexes**: `GIN Index` trên các cột tên (product name, customer name) để tìm kiếm Full-Text siêu nhanh.
+2.  **Geospatial Indexes**: `GIST Index` trên tọa độ (lat, long) để tìm "Khách hàng trong bán kính 500m".
+3.  **Partial Indexes**: `CREATE INDEX ... WHERE deleted_at IS NULL` -> Chỉ index các dòng đang hoạt động, giúp giảm 50% dung lượng index và tăng tốc độ insert/update.
+4.  **Covering Indexes**: Đưa các cột hay dùng vào Index (INCLUDE clause) để Database không cần đọc bảng chính.
 
 ### Temporal Indexing (Rule #8 Support)
-To support efficient "Point-in-Time" queries for Assignments and Routes (SCD Type 2):
+Hỗ trợ truy vấn lịch sử theo thời gian (Time-Travel):
 ```sql
--- Ensure no overlapping assignments for the same employee
+-- Đảm bảo không trùng lịch tuyến cho 1 nhân viên
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 CREATE INDEX idx_route_assignment_period ON route_assignment 
 USING GIST (employee_id, daterange(start_date, end_date, '[]'));
 
--- Ensure efficient query of "Which route was this customer in on Date X?"
+-- Truy vấn nhanh: "Ngày X khách hàng này thuộc tuyến nào?"
 CREATE INDEX idx_customer_route_period ON customer_route 
 USING GIST (customer_id, daterange(start_date, end_date, '[]'));
 ```
+
+### Partitioning (Phân mảnh dữ liệu lớn)
+Chia nhỏ các bảng lớn (hàng triệu dòng) theo tháng để tăng tốc độ query báo cáo:
+1.  **`sales_order`**: Phân mảnh theo `order_date` (Monthly).
+2.  **`inventory_txn`**: Phân mảnh theo `txn_date` (Monthly).
+3.  **`visit`**: Phân mảnh theo `checkin_time` (Monthly).
 
 ---
 
 ## 6. Migration Strategy
 
-This project will follow a **Code-First / Migration-Script** approach using Flyway or EF Core Migrations.
+Dự án áp dụng chiến lược **Code-First** với nguyên tắc **Zero-Downtime**:
+
+### Delete Strategy (Soft vs Hard)
+1.  **Soft Delete**: Dùng cho toàn bộ Master Data & Transaction.
+    *   *Implementation*: Tất cả query mặc định phải có `WHERE deleted_at IS NULL`.
+    *   *Lợi ích*: An toàn tuyệt đối, có thể khôi phục (Restore) ngay lập tức.
+2.  **Hard Delete**:
+    *   Chỉ dùng cho Log tạm, Staging tables, và dữ liệu Audit quá cũ (Archive).
 
 ### Zero-Downtime Principles
-1.  **Expand-Contract Pattern**:
-    - **Step 1 (Expand)**: Add new columns/tables. Deploy code that writes to BOTH old and new columns.
-    - **Step 2 (Migrate)**: Backfill data from old to new.
-    - **Step 3 (Contract)**: Deploy code that only reads/writes to new columns. Remove usage of old.
-2.  **Lock Avoidance**:
-    - Use `concurrently` for index creation.
-    - Add columns with `DEFAULT NULL` first, then backfill, then set `NOT NULL`.
-
-### Migration Pipeline
-- **Dev**: Auto-migrate on startup (or via CLI).
-- **Staging**: CI pipeline runs `dry-run` to generate SQL script for review.
-- **Prod**: DBA/Lead reviews SQL script. Automated execution via maintenance window or zero-downtime rolling update.
-
----
+1.  **Expand-Contract**: Thêm cột mới -> Copy dữ liệu -> Xóa cột cũ (qua 3 lần deploy).
+2.  **No Locks**: Sử dụng `CREATE INDEX CONCURRENTLY` để không khóa bảng khi hệ thống đang chạy.
