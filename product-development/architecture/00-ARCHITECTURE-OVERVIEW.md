@@ -2,9 +2,10 @@
 
 ## Distribution Management System
 
-**Version:** 1.0
-**Last Updated:** 2026-02-03
+**Version:** 2.0
+**Last Updated:** 2026-02-04
 **Status:** Draft
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 
@@ -85,6 +86,7 @@ This architecture follows the C4 Model for visualization:
 | [06-DEPLOYMENT-ARCHITECTURE.md](06-DEPLOYMENT-ARCHITECTURE.md) | Deployment & Infrastructure |
 | [07-SECURITY-ARCHITECTURE.md](07-SECURITY-ARCHITECTURE.md) | Security Design |
 | [08-MOBILE-ARCHITECTURE.md](08-MOBILE-ARCHITECTURE.md) | Android App Architecture |
+| [09-REPORTING-ARCHITECTURE.md](09-REPORTING-ARCHITECTURE.md) | Reporting & KPI Calculation |
 | [adr/](adr/) | Architecture Decision Records |
 
 ---
@@ -197,6 +199,7 @@ See [06-DEPLOYMENT-ARCHITECTURE.md](06-DEPLOYMENT-ARCHITECTURE.md) for details.
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 2.0 | 2026-02-04 | Architecture Team | Updated to reflect PRD v2.0-v2.3: Added GSBH mobile functions, Van-sale mode, organizational hierarchy |
 | 1.0 | 2026-02-02 | Architecture Team | Initial version |
 
 ---

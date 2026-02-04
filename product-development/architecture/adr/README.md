@@ -2,7 +2,7 @@
 
 ## DILIGO DMS - Architecture Decision Log
 
-**Last Updated:** 2026-02-03
+**Last Updated:** 2026-02-04
 
 ---
 
@@ -26,8 +26,10 @@ Architecture Decision Records (ADRs) are documents that capture important archit
 | [ADR-004](ADR-004-neon-free-tier.md) | Neon Free Tier for Deployment | Accepted | 2026-02-02 |
 | [ADR-005](ADR-005-jwt-auth.md) | JWT for Authentication | Accepted | 2026-02-02 |
 | [ADR-006](ADR-006-offline-first-mobile.md) | Offline-First Mobile Architecture | Accepted | 2026-02-02 |
-| [ADR-007](ADR-007-react-web-frontend.md) | React for Web Frontend | Proposed | 2026-02-02 |
-| [ADR-008](ADR-008-signalr-realtime.md) | SignalR for Real-time Features | Accepted | 2026-02-02 |
+| [ADR-007](ADR-007-van-sales-workflow.md) | Van-sales vs Pre-sales Order Workflow | Accepted | 2026-02-04 |
+| [ADR-008](ADR-008-kpi-calculation.md) | KPI Calculation Strategy | Accepted | 2026-02-04 |
+| [ADR-009](ADR-009-organization-hierarchy.md) | Organization Hierarchy Design Pattern | Accepted | 2026-02-04 |
+| [ADR-010](ADR-010-display-scoring.md) | Display Scoring Workflow | Accepted | 2026-02-04 |
 
 ---
 

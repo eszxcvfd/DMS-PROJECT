@@ -2,8 +2,9 @@
 
 ## Distribution Management System - System Context Diagram
 
-**Version:** 1.0
-**Last Updated:** 2026-02-02
+**Version:** 2.0
+**Last Updated:** 2026-02-04
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 
@@ -68,8 +69,8 @@ The System Context diagram shows DILIGO DMS as a black box, highlighting its rel
 
 | Actor | Vietnamese | Description | Channel |
 |-------|-----------|-------------|---------|
-| **Sales Representative** | Nhân viên bán hàng (NVBH) | Field sales staff who visit customers, take orders, capture product displays | Android Mobile App |
-| **Sales Supervisor** | Giám sát bán hàng (GSBH/SS) | Direct supervisors who monitor sales reps, approve orders, track KPIs | Web Application |
+| **Sales Representative** | Nhân viên bán hàng (NVBH) | Field sales staff who visit customers, take orders (Pre-sales/Van-sales), capture product displays | Android Mobile App |
+| **Sales Supervisor** | Giám sát bán hàng (GSBH/SS) | Direct supervisors who monitor sales reps, approve orders, track KPIs. **v2.0:** Can create NPP, manage routes, assign KPIs via mobile | Web + Mobile App |
 | **Area Sales Manager** | ASM | Regional managers who oversee multiple supervisors and territories | Web Application |
 | **Regional Sales Manager** | RSM | Senior managers with oversight of large regions | Web Application |
 | **Distributor Admin** | Admin NPP | Administrators who manage master data, inventory, and receivables | Web Application |
@@ -97,12 +98,16 @@ The System Context diagram shows DILIGO DMS as a black box, highlighting its rel
 │  ├── Real-time GPS monitoring of NVBH                                       │
 │  ├── Order approval/rejection                                               │
 │  ├── Visit supervision                                                      │
-│  └── Daily KPI tracking                                                     │
+│  ├── Daily KPI tracking                                                     │
+│  ├── [MOBILE v2.0] Create new NPP (Mở mới NPP)                              │
+│  ├── [MOBILE v2.0] Route management (Quản lý tuyến)                         │
+│  └── [MOBILE v2.0] Assign KPI to employees (Chia KPI)                       │
 │       │                                                                     │
 │       ▼                                                                     │
 │  NVBH (Sales Representative)                                                │
 │  ├── Customer visits (check-in/check-out)                                   │
-│  ├── Order creation                                                         │
+│  ├── Order creation (Pre-sales: order for later delivery)                   │
+│  ├── Order creation (Van-sales: sell & deliver immediately)                 │
 │  ├── Photo capture                                                          │
 │  └── Attendance (clock in/out)                                              │
 │                                                                             │
@@ -277,6 +282,50 @@ C4Context
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 6.3 Mobile App (GSBH) Interactions - NEW in v2.0
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  GSBH MOBILE APP INTERACTIONS (v2.0)            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  NPP Management (Mở mới NPP)                                    │
+│  ├── Create new distributor profile                             │
+│  │   └── POST /api/distributors                                 │
+│  ├── Upload NPP photos (store, owner, meeting, docs)            │
+│  │   └── POST /api/distributors/{id}/photos                     │
+│  └── Update NPP information                                     │
+│      └── PATCH /api/distributors/{id}                           │
+│                                                                 │
+│  Route Management (Quản lý tuyến)                               │
+│  ├── Create new route                                           │
+│  │   └── POST /api/routes                                       │
+│  ├── Add customers to route                                     │
+│  │   └── POST /api/routes/{id}/customers                        │
+│  ├── Update route for multiple customers                        │
+│  │   └── PATCH /api/routes/{id}/customers                       │
+│  └── Import routes from Excel                                   │
+│      └── POST /api/routes/import                                │
+│                                                                 │
+│  KPI Assignment (Chia KPI cho NV)                               │
+│  ├── Set general KPIs (visits, orders, revenue, SKUs)           │
+│  │   └── POST /api/kpi/assignments                              │
+│  ├── Set focus product KPIs                                     │
+│  │   └── POST /api/kpi/product-targets                          │
+│  └── View KPI performance                                       │
+│      └── GET /api/kpi/performance/{userId}                      │
+│                                                                 │
+│  Supervisor Monitoring                                          │
+│  ├── View employee locations                                    │
+│  │   └── GET /api/monitoring/locations                          │
+│  ├── View visit status by employee                              │
+│  │   └── GET /api/monitoring/visits/{userId}                    │
+│  └── View photos by employee                                    │
+│      └── GET /api/photos?userId={userId}                        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ---
 
 ## 7. Data Flow Overview
@@ -286,10 +335,15 @@ C4Context
 │                           PRIMARY DATA FLOWS                                │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  1. Order Flow                                                              │
-│  ─────────────                                                              │
+│  1. Order Flow (Pre-sales - Bán hàng thường)                               │
+│  ─────────────────────────────────────────                                 │
 │  NVBH → Create Order → API → Pending Queue → GSBH Approves →               │
 │  Sales Invoice → Stock Out → Delivery → Receivable Update                   │
+│                                                                             │
+│  1b. Order Flow (Van-sales - Bán hàng theo xe) [NEW v2.0]                  │
+│  ─────────────────────────────────────────────────────────                 │
+│  NVBH → Create Van-sale Order → Immediate Stock Deduction from Van →       │
+│  Deliver on-site → Payment Collection → Receivable Update                   │
 │                                                                             │
 │  2. Visit Tracking Flow                                                     │
 │  ────────────────────                                                       │

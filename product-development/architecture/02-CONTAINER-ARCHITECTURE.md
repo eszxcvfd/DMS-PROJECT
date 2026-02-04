@@ -2,8 +2,9 @@
 
 ## Distribution Management System - Container Diagram
 
-**Version:** 1.0
-**Last Updated:** 2026-02-03
+**Version:** 2.0
+**Last Updated:** 2026-02-04
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 

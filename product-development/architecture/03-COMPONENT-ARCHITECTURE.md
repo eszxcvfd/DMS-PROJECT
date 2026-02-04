@@ -2,8 +2,9 @@
 
 ## Distribution Management System - Component Diagrams
 
-**Version:** 1.0
-**Last Updated:** 2026-02-02
+**Version:** 2.0
+**Last Updated:** 2026-02-04
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 
@@ -119,13 +120,16 @@ This document details the internal components of each container in the DILIGO DM
 | **AuthController** | `/api/auth/*` | Login, logout, refresh token, password management |
 | **CustomersController** | `/api/customers/*` | Customer CRUD, search, route assignment |
 | **ProductsController** | `/api/products/*` | Product catalog, pricing, inventory levels |
-| **OrdersController** | `/api/orders/*` | Order creation, approval, status tracking |
+| **OrdersController** | `/api/orders/*` | Order creation (Pre-sales/Van-sales), approval, status tracking |
 | **VisitsController** | `/api/visits/*` | Check-in/out, photo upload, visit history |
-| **InventoryController** | `/api/inventory/*` | Stock in/out/transfer operations |
-| **ReportsController** | `/api/reports/*` | KPIs, dashboards, Excel exports |
+| **InventoryController** | `/api/inventory/*` | Stock in/out/transfer operations, Van-sale stock |
+| **ReportsController** | `/api/reports/*` | KPIs, dashboards, Excel exports, display scoring |
 | **SyncController** | `/api/sync/*` | Delta sync, upload pending, conflict resolution |
 | **AttendanceController** | `/api/attendance/*` | Clock in/out, timesheet |
 | **MonitoringHub** | `/hubs/monitoring` | Real-time GPS, notifications (SignalR) |
+| **DistributorsController** | `/api/distributors/*` | **[v2.0]** NPP CRUD, onboarding (Mở mới NPP) |
+| **RoutesController** | `/api/routes/*` | **[v2.0]** Route CRUD, customer assignment, import |
+| **KPIController** | `/api/kpi/*` | **[v2.0]** KPI assignment, targets, performance tracking |
 
 ### 2.2 Services (Business Logic)
 
@@ -133,14 +137,17 @@ This document details the internal components of each container in the DILIGO DM
 |---------|----------------|
 | **AuthService** | JWT generation, token validation, password hashing |
 | **CustomerService** | Customer CRUD, route filtering, GPS validation |
-| **OrderService** | Order workflow (create → approve → fulfill), pricing |
+| **OrderService** | Order workflow (Pre-sales: create → approve → fulfill; Van-sales: create → immediate fulfill), pricing |
 | **VisitService** | Check-in validation, GPS distance check, photo handling |
 | **ProductService** | Product catalog, pricing by customer type |
-| **InventoryService** | Stock movements, availability checks |
+| **InventoryService** | Stock movements, availability checks, Van-sale stock management |
 | **PromotionService** | Active promotions, discount calculation |
-| **ReportService** | KPI aggregation, dashboard data, exports |
+| **ReportService** | KPI aggregation, dashboard data, exports, display scoring reports |
 | **SyncService** | Delta sync logic, conflict resolution |
 | **NotificationService** | Push notifications via FCM, SignalR broadcasts |
+| **DistributorService** | **[v2.0]** NPP onboarding, profile management, document handling |
+| **RouteService** | **[v2.0]** Route CRUD, customer assignment, Excel import |
+| **KPIService** | **[v2.0]** KPI target assignment, performance calculation, tracking |
 
 ---
 
@@ -273,11 +280,15 @@ This document details the internal components of each container in the DILIGO DM
 | **RouteScreen** | RouteViewModel | Today's route, customer list, map view |
 | **CustomerScreen** | CustomerViewModel | Customer details, visit history, orders |
 | **VisitScreen** | VisitViewModel | Check-in/out, GPS capture, status update |
-| **OrderScreen** | OrderViewModel | Order creation, product selection, totals |
+| **OrderScreen** | OrderViewModel | Order creation (Pre-sales/Van-sales), product selection, totals |
 | **ProductScreen** | ProductViewModel | Product catalog, search, inventory |
 | **CameraScreen** | CameraViewModel | Photo capture, compression, tagging |
 | **ReportScreen** | ReportViewModel | KPIs, performance charts |
 | **SettingsScreen** | SettingsViewModel | User preferences, sync status |
+| **NPPOnboardingScreen** | NPPOnboardingViewModel | **[v2.0 GSBH]** Create new NPP, capture docs/photos |
+| **RouteManagementScreen** | RouteManagementViewModel | **[v2.0 GSBH]** Create/edit routes, assign customers |
+| **KPIAssignmentScreen** | KPIAssignmentViewModel | **[v2.0 GSBH]** Set KPI targets for employees |
+| **EmployeeMonitorScreen** | EmployeeMonitorViewModel | **[v2.0 GSBH]** View employee locations/visits/photos |
 
 ### 3.2 Key Use Cases
 
@@ -286,10 +297,14 @@ This document details the internal components of each container in the DILIGO DM
 | **LoginUseCase** | Authenticate user, store JWT, handle refresh |
 | **GetRouteUseCase** | Fetch today's assigned route with customers |
 | **CheckInUseCase** | Validate GPS proximity, record check-in time |
-| **CreateOrderUseCase** | Build order, apply promotions, queue for sync |
+| **CreateOrderUseCase** | Build order (Pre-sales or Van-sales), apply promotions, queue for sync |
 | **SyncDataUseCase** | Perform delta sync with server |
 | **UploadPhotoUseCase** | Compress and upload visit photos |
 | **ClockInOutUseCase** | Record daily attendance |
+| **CreateNPPUseCase** | **[v2.0 GSBH]** Create new distributor with photos and documents |
+| **ManageRouteUseCase** | **[v2.0 GSBH]** Create/edit routes, assign customers, import Excel |
+| **AssignKPIUseCase** | **[v2.0 GSBH]** Set KPI targets for employees with date ranges |
+| **VanSaleOrderUseCase** | **[v2.0]** Create Van-sale order with immediate stock deduction |
 
 ---
 
@@ -379,6 +394,243 @@ This document details the internal components of each container in the DILIGO DM
 │  └──────────────────────────────────────────────────────────────────────────────────────┘   │
 │                                                                                             │
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 4.1 Pages Detail
+
+| Page | Components | Key Features |
+|------|------------|--------------|
+| **LoginPage** | LoginForm, AuthContext | User authentication, SSO integration |
+| **DashboardPage** | KPICards, Charts, AlertList | Real-time metrics, notifications |
+| **MonitoringPage** | LiveMap, EmployeeList, FilterPanel | GPS tracking, employee status |
+| **OrdersPage** | OrderTable, OrderDetailModal, ApprovalButtons | Order management, bulk actions |
+| **CustomersPage** | CustomerTable, CustomerForm, MapView | Customer CRUD, route assignment |
+| **ProductsPage** | ProductGrid, PriceEditor, CategoryTree | Product catalog management |
+| **InventoryPage** | StockList, MovementForm, TransferModal | Stock management, Van-sale transfers |
+| **ReportsPage** | ReportFilters, DataTable, ExportButton | Analytics, Excel exports |
+| **VisitsPage** | VisitTable, PhotoGallery, Timeline | Visit history, photo review |
+| **SettingsPage** | UserProfile, Preferences, UserManagement | System configuration |
+| **NPPManagementPage** | NPPTable, NPPForm, PhotoGallery | **[v2.0]** Distributor management |
+| **RouteManagementPage** | RouteTable, RouteEditor, CustomerAssignment | **[v2.0]** Route CRUD |
+| **KPIDashboardPage** | KPITargetTable, PerformanceCharts, EmployeeSelector | **[v2.0]** KPI tracking |
+| **DisplayScoringPage** | PendingScoreList, PhotoViewer, ScoreForm | **[v2.0]** VIP display scoring |
+
+### 4.2 Custom Hooks
+
+```typescript
+// useAuth.ts
+const useAuth = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const login = async (username: string, password: string) => { ... };
+  const logout = async () => { ... };
+  const refreshToken = async () => { ... };
+
+  return { user, isLoading, login, logout, refreshToken };
+};
+
+// useOrders.ts (React Query)
+const useOrders = (filters: OrderFilters) => {
+  return useQuery({
+    queryKey: ['orders', filters],
+    queryFn: () => ordersApi.list(filters),
+  });
+};
+
+const useApproveOrder = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ordersApi.approve,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+  });
+};
+
+// useRealtime.ts (SignalR)
+const useRealtime = (distributorId: string) => {
+  const [locations, setLocations] = useState<Map<string, Location>>(new Map());
+  const connectionRef = useRef<HubConnection | null>(null);
+
+  useEffect(() => {
+    const connection = new HubConnectionBuilder()
+      .withUrl(`${API_URL}/hubs/monitoring`, {
+        accessTokenFactory: () => getAccessToken(),
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on('LocationUpdate', (data: LocationUpdate) => {
+      setLocations(prev => new Map(prev).set(data.userId, data));
+    });
+
+    connection.start().then(() => {
+      connection.invoke('JoinGroup', `Location_${distributorId}`);
+    });
+
+    connectionRef.current = connection;
+    return () => { connection.stop(); };
+  }, [distributorId]);
+
+  return { locations };
+};
+
+// useKPI.ts [v2.0]
+const useKPIPerformance = (userId: string, month: string) => {
+  return useQuery({
+    queryKey: ['kpi-performance', userId, month],
+    queryFn: () => kpiApi.getPerformance(userId, month),
+    refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
+  });
+};
+
+// useDisplayScoring.ts [v2.0]
+const usePendingScores = (filters: ScoreFilters) => {
+  return useQuery({
+    queryKey: ['display-scores', 'pending', filters],
+    queryFn: () => displayScoreApi.listPending(filters),
+  });
+};
+
+const useScoreDisplay = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: displayScoreApi.score,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['display-scores'] });
+    },
+  });
+};
+```
+
+### 4.3 State Management (Zustand)
+
+```typescript
+// authStore.ts
+interface AuthState {
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  setAuth: (user: User, tokens: Tokens) => void;
+  clearAuth: () => void;
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      setAuth: (user, tokens) => set({
+        user,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+      }),
+      clearAuth: () => set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+      }),
+    }),
+    { name: 'auth-storage' }
+  )
+);
+
+// filterStore.ts
+interface FilterState {
+  dateRange: DateRange;
+  distributorId: string | null;
+  territory: string | null;
+  setDateRange: (range: DateRange) => void;
+  setDistributor: (id: string) => void;
+}
+
+export const useFilterStore = create<FilterState>((set) => ({
+  dateRange: { from: startOfMonth(new Date()), to: new Date() },
+  distributorId: null,
+  territory: null,
+  setDateRange: (range) => set({ dateRange: range }),
+  setDistributor: (id) => set({ distributorId: id }),
+}));
+```
+
+### 4.4 API Layer
+
+```typescript
+// apiClient.ts
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Try refresh token
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return apiClient.request(error.config);
+      }
+      useAuthStore.getState().clearAuth();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+// ordersApi.ts
+export const ordersApi = {
+  list: (filters: OrderFilters) =>
+    apiClient.get<PaginatedResponse<Order>>('/orders', { params: filters }),
+
+  getById: (id: string) =>
+    apiClient.get<Order>(`/orders/${id}`),
+
+  create: (data: CreateOrderDto) =>
+    apiClient.post<Order>('/orders', data),
+
+  approve: (id: string) =>
+    apiClient.post(`/orders/${id}/approve`),
+
+  reject: (id: string, reason: string) =>
+    apiClient.post(`/orders/${id}/reject`, { reason }),
+};
+
+// kpiApi.ts [v2.0]
+export const kpiApi = {
+  getTargets: (filters: KPIFilters) =>
+    apiClient.get<PaginatedResponse<KPITarget>>('/kpi/targets', { params: filters }),
+
+  createTarget: (data: CreateKPITargetDto) =>
+    apiClient.post<KPITarget>('/kpi/targets', data),
+
+  getPerformance: (userId: string, month: string) =>
+    apiClient.get<KPIPerformance>(`/kpi/performance/${userId}`, { params: { month } }),
+};
+
+// displayScoreApi.ts [v2.0]
+export const displayScoreApi = {
+  listPending: (filters: ScoreFilters) =>
+    apiClient.get<PaginatedResponse<DisplayScore>>('/display-scores', {
+      params: { ...filters, isPending: true }
+    }),
+
+  score: (id: string, data: ScoreDto) =>
+    apiClient.post(`/display-scores/${id}/score`, data),
+
+  bulkScore: (scores: BulkScoreDto[]) =>
+    apiClient.post('/display-scores/bulk-score', { scores }),
+};
 ```
 
 ---

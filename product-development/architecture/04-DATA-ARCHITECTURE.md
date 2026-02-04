@@ -2,8 +2,9 @@
 
 ## Distribution Management System - Database Design
 
-**Version:** 1.1
-**Last Updated:** 2026-02-03
+**Version:** 2.0
+**Last Updated:** 2026-02-04
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 
@@ -363,6 +364,7 @@ CREATE TABLE Orders (
     UserId              UUID                NOT NULL REFERENCES Users(UserId),
     VisitId             UUID                NULL REFERENCES Visits(VisitId),
     OrderDate           TIMESTAMPTZ         NOT NULL,
+    OrderType           VARCHAR(20)         NOT NULL DEFAULT 'PreSales', -- [v2.0] 'PreSales', 'VanSales'
     Status              VARCHAR(20)         NOT NULL, -- 'Draft', 'Pending', 'Approved', 'Rejected', 'Delivered'
     SubTotal            DECIMAL(18,2)       NOT NULL,
     DiscountAmount      DECIMAL(18,2)       NOT NULL DEFAULT 0,
@@ -372,6 +374,7 @@ CREATE TABLE Orders (
     ApprovedBy          UUID                NULL REFERENCES Users(UserId),
     ApprovedAt          TIMESTAMPTZ         NULL,
     RejectionReason     VARCHAR(500)        NULL,
+    VanSaleWarehouseId  UUID                NULL REFERENCES Warehouses(WarehouseId), -- [v2.0] For Van-sales orders
     SyncStatus          VARCHAR(20)         NOT NULL DEFAULT 'Synced', -- 'Pending', 'Synced', 'Failed'
     CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
     UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
@@ -381,6 +384,7 @@ CREATE INDEX IX_Orders_Customer ON Orders(CustomerId, OrderDate DESC);
 CREATE INDEX IX_Orders_User ON Orders(UserId, OrderDate DESC);
 CREATE INDEX IX_Orders_Status ON Orders(Status, OrderDate DESC);
 CREATE INDEX IX_Orders_Distributor ON Orders(DistributorId, OrderDate DESC);
+CREATE INDEX IX_Orders_Type ON Orders(OrderType, OrderDate DESC); -- [v2.0]
 ```
 
 #### Order Details
@@ -415,10 +419,15 @@ CREATE TABLE Warehouses (
     DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
     WarehouseCode       VARCHAR(20)         NOT NULL,
     Name                VARCHAR(100)        NOT NULL,
+    WarehouseType       VARCHAR(20)         NOT NULL DEFAULT 'Main', -- [v2.0] 'Main', 'VanSale'
+    AssignedUserId      UUID                NULL REFERENCES Users(UserId), -- [v2.0] For Van-sale warehouses
     Address             VARCHAR(500)        NULL,
     Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
     CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IX_Warehouses_Type ON Warehouses(WarehouseType) WHERE WarehouseType = 'VanSale';
+CREATE INDEX IX_Warehouses_AssignedUser ON Warehouses(AssignedUserId) WHERE AssignedUserId IS NOT NULL;
 
 CREATE TABLE ProductStock (
     StockId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -510,7 +519,107 @@ CREATE INDEX IX_Promotions_ApplicableProducts ON Promotions USING GIN (Applicabl
 CREATE INDEX IX_Promotions_ApplicableCustomers ON Promotions USING GIN (ApplicableCustomers);
 ```
 
-### 3.5 Monitoring & Tracking
+### 3.5 KPI Management (NEW in v2.0)
+
+#### KPI Targets
+
+```sql
+-- KPI Target assignments for employees
+CREATE TABLE KPITargets (
+    KPITargetId         UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
+    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
+    UserId              UUID                NOT NULL REFERENCES Users(UserId),
+    TargetMonth         DATE                NOT NULL, -- First day of target month
+    VisitTarget         INT                 NULL, -- Số KH viếng thăm/tháng
+    NewCustomerTarget   INT                 NULL, -- Số KH mới/tháng
+    OrderTarget         INT                 NULL, -- Số đơn hàng/tháng
+    RevenueTarget       DECIMAL(18,2)       NULL, -- Doanh số/tháng
+    NetRevenueTarget    DECIMAL(18,2)       NULL, -- Doanh thu/tháng
+    VolumeTarget        INT                 NULL, -- Sản lượng/tháng
+    SKUTarget           INT                 NULL, -- Tổng SKU/tháng
+    WorkingHoursTarget  DECIMAL(5,2)        NULL, -- Số giờ làm việc
+    EffectiveFrom       DATE                NOT NULL,
+    EffectiveTo         DATE                NULL,
+    CreatedBy           UUID                NOT NULL REFERENCES Users(UserId),
+    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT UQ_KPI_User_Month UNIQUE (UserId, TargetMonth)
+);
+
+CREATE INDEX IX_KPITargets_User ON KPITargets(UserId, TargetMonth DESC);
+CREATE INDEX IX_KPITargets_Distributor ON KPITargets(DistributorId, TargetMonth DESC);
+
+-- Focus product KPI targets
+CREATE TABLE KPIProductTargets (
+    ProductTargetId     UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
+    KPITargetId         UUID                NOT NULL REFERENCES KPITargets(KPITargetId) ON DELETE CASCADE,
+    ProductId           UUID                NOT NULL REFERENCES Products(ProductId),
+    QuantityTarget      INT                 NOT NULL,
+    RevenueTarget       DECIMAL(18,2)       NULL,
+
+    CONSTRAINT UQ_KPI_Product UNIQUE (KPITargetId, ProductId)
+);
+```
+
+### 3.6 Organizational Structure (NEW in v2.0)
+
+```sql
+-- Hierarchical organizational units
+CREATE TABLE OrganizationUnits (
+    UnitId              UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
+    DistributorId       UUID                NULL REFERENCES Distributors(DistributorId),
+    UnitCode            VARCHAR(20)         NOT NULL,
+    UnitName            VARCHAR(100)        NOT NULL,
+    ParentUnitId        UUID                NULL REFERENCES OrganizationUnits(UnitId),
+    HierarchyPath       VARCHAR(500)        NOT NULL, -- e.g., "1.1.1.2.1.1"
+    IsSupervisorUnit    BOOLEAN             NOT NULL DEFAULT FALSE, -- Giám sát
+    IsSalesGroup        BOOLEAN             NOT NULL DEFAULT FALSE, -- Nhóm bán hàng
+    Level               INT                 NOT NULL DEFAULT 0,
+    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
+    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IX_OrgUnits_Parent ON OrganizationUnits(ParentUnitId);
+CREATE INDEX IX_OrgUnits_Hierarchy ON OrganizationUnits(HierarchyPath);
+CREATE INDEX IX_OrgUnits_Distributor ON OrganizationUnits(DistributorId);
+
+-- User to Organization Unit mapping
+CREATE TABLE UserOrganizationUnits (
+    UserOrgId           UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
+    UserId              UUID                NOT NULL REFERENCES Users(UserId),
+    UnitId              UUID                NOT NULL REFERENCES OrganizationUnits(UnitId),
+    IsPrimary           BOOLEAN             NOT NULL DEFAULT TRUE,
+
+    CONSTRAINT UQ_User_Unit UNIQUE (UserId, UnitId)
+);
+```
+
+### 3.7 Display Scoring (NEW in v2.0)
+
+```sql
+-- VIP Display scoring for photos
+CREATE TABLE DisplayScores (
+    ScoreId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
+    VisitId             UUID                NOT NULL REFERENCES Visits(VisitId),
+    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
+    CapturedByUserId    UUID                NOT NULL REFERENCES Users(UserId), -- NV Chụp thực tế
+    PhotoCount          INT                 NOT NULL DEFAULT 0, -- SL Hình đã up
+    UploadDate          DATE                NOT NULL, -- Ngày Upload
+    ScoredByUserId      UUID                NULL REFERENCES Users(UserId), -- NV chấm điểm
+    ScoredDate          DATE                NULL, -- Ngày chấm
+    IsPassed            BOOLEAN             NULL, -- Đạt/Không đạt
+    Revenue             DECIMAL(18,2)       NULL, -- Doanh số KH
+    Notes               TEXT                NULL,
+    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IX_DisplayScores_Customer ON DisplayScores(CustomerId, UploadDate DESC);
+CREATE INDEX IX_DisplayScores_CapturedBy ON DisplayScores(CapturedByUserId, UploadDate DESC);
+CREATE INDEX IX_DisplayScores_Pending ON DisplayScores(ScoredByUserId) WHERE ScoredByUserId IS NULL;
+```
+
+### 3.8 Monitoring & Tracking
 
 #### Attendance
 

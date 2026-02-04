@@ -2,8 +2,9 @@
 
 ## Distribution Management System - Security Design
 
-**Version:** 1.0
-**Last Updated:** 2026-02-02
+**Version:** 2.0
+**Last Updated:** 2026-02-04
+**PRD Reference:** PRD-v2.md (v2.3)
 
 ---
 
@@ -807,4 +808,5 @@ public class SecurityTelemetry
 
 - [06-DEPLOYMENT-ARCHITECTURE.md](06-DEPLOYMENT-ARCHITECTURE.md) - Infrastructure security
 - [adr/ADR-005-jwt-auth.md](adr/ADR-005-jwt-auth.md) - Authentication decision
-- [adr/ADR-006-rbac.md](adr/ADR-006-rbac.md) - Authorization model decision
+- [adr/ADR-006-offline-first-mobile.md](adr/ADR-006-offline-first-mobile.md) - Offline-first mobile architecture
+- [adr/ADR-009-organization-hierarchy.md](adr/ADR-009-organization-hierarchy.md) - Organization hierarchy for data access control
