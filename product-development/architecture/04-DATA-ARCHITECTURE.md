@@ -4,295 +4,215 @@
 
 **Version:** 2.0
 **Last Updated:** 2026-02-04
+<<<<<<< Updated upstream
 **PRD Reference:** PRD-v2.md (v2.3)
+=======
+**Status:** Approved Draft
+>>>>>>> Stashed changes
 
 ---
 
 ## 1. Overview
 
-This document describes the data architecture for DILIGO DMS, including the logical data model, physical database schema, and data flow patterns.
+This document describes the comprehensive data architecture for DILIGO DMS, redesigned to support a scalable, multi-tenant distribution system.
 
-### Technology Choice
-
-| Aspect | Details |
-|--------|---------|
-| **RDBMS** | PostgreSQL 16 |
-| **ORM** | Entity Framework Core 8 (Npgsql) |
-| **Migration** | EF Core Migrations |
-| **Free Tier** | Neon Free (512MB), Supabase Free (500MB), or self-hosted |
-
----
-
-## 2. Entity Relationship Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    ENTITY RELATIONSHIP DIAGRAM                              │
-├─────────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                             │
-│  ┌──────────────────┐         ┌──────────────────┐         ┌──────────────────┐            │
-│  │   Distributor    │         │      User        │         │      Role        │            │
-│  │   (NPP)          │◄───────►│                  │◄───────►│                  │            │
-│  │                  │   1:N   │  - UserId        │   N:1   │  - RoleId        │            │
-│  │  - DistributorId │         │  - DistributorId │         │  - RoleName      │            │
-│  │  - Name          │         │  - Username      │         │  - Permissions   │            │
-│  │  - TaxCode       │         │  - PasswordHash  │         │                  │            │
-│  │  - Region        │         │  - RoleId        │         └──────────────────┘            │
-│  └────────┬─────────┘         │  - EmployeeCode  │                                         │
-│           │                   │  - FullName      │                                         │
-│           │ 1:N               │  - Phone         │                                         │
-│           │                   └────────┬─────────┘                                         │
-│           │                            │                                                    │
-│           │                            │ 1:N (NVBH)                                        │
-│           ▼                            │                                                    │
-│  ┌──────────────────┐                  │                                                    │
-│  │     Route        │                  │                                                    │
-│  │                  │                  │                                                    │
-│  │  - RouteId       │                  │                                                    │
-│  │  - RouteName     │◄─────────────────┘                                                    │
-│  │  - DistributorId │   N:1                                                                │
-│  │  - AssignedUserId│                                                                       │
-│  │  - DayOfWeek     │                                                                       │
-│  └────────┬─────────┘                                                                       │
-│           │                                                                                 │
-│           │ 1:N                                                                             │
-│           ▼                                                                                 │
-│  ┌──────────────────┐         ┌──────────────────┐         ┌──────────────────┐            │
-│  │    Customer      │◄───────►│      Visit       │────────►│   VisitPhoto     │            │
-│  │                  │   1:N   │                  │   1:N   │                  │            │
-│  │  - CustomerId    │         │  - VisitId       │         │  - PhotoId       │            │
-│  │  - CustomerCode  │         │  - CustomerId    │         │  - VisitId       │            │
-│  │  - Name          │         │  - UserId        │         │  - AlbumType     │            │
-│  │  - Phone         │         │  - CheckInTime   │         │  - ImageUrl      │            │
-│  │  - Address       │         │  - CheckOutTime  │         │  - Latitude      │            │
-│  │  - Latitude      │         │  - Latitude      │         │  - Longitude     │            │
-│  │  - Longitude     │         │  - Longitude     │         │  - CreatedAt     │            │
-│  │  - CustomerGroup │         │  - VisitType     │         └──────────────────┘            │
-│  │  - CustomerType  │         │  - HasOrder      │                                         │
-│  │  - Channel       │         │  - Notes         │                                         │
-│  │  - RouteId       │         └────────┬─────────┘                                         │
-│  │  - CreditLimit   │                  │                                                    │
-│  │  - Balance       │                  │                                                    │
-│  └────────┬─────────┘                  │                                                    │
-│           │                            │                                                    │
-│           │ 1:N                        │ 1:1 (optional)                                     │
-│           ▼                            ▼                                                    │
-│  ┌──────────────────┐         ┌──────────────────┐         ┌──────────────────┐            │
-│  │      Order       │◄────────│                  │────────►│  OrderDetail     │            │
-│  │                  │         │                  │   1:N   │                  │            │
-│  │  - OrderId       │         │                  │         │  - DetailId      │            │
-│  │  - OrderNumber   │         │                  │         │  - OrderId       │            │
-│  │  - CustomerId    │         │                  │         │  - ProductId     │            │
-│  │  - UserId        │         │                  │         │  - Quantity      │            │
-│  │  - VisitId       │◄────────┘                  │         │  - UnitPrice     │            │
-│  │  - OrderDate     │                            │         │  - Discount      │            │
-│  │  - Status        │                            │         │  - Amount        │            │
-│  │  - TotalAmount   │                            │         │  - PromotionId   │            │
-│  │  - ApprovedBy    │                            │         └─────────┬────────┘            │
-│  │  - ApprovedAt    │                            │                   │                     │
-│  └────────┬─────────┘                            │                   │ N:1                 │
-│           │                                      │                   ▼                     │
-│           │ 1:1                                  │         ┌──────────────────┐            │
-│           ▼                                      │         │     Product      │            │
-│  ┌──────────────────┐                            │         │                  │            │
-│  │  SalesInvoice    │                            │         │  - ProductId     │            │
-│  │                  │                            │         │  - ProductCode   │            │
-│  │  - InvoiceId     │                            │         │  - Name          │            │
-│  │  - OrderId       │                            │         │  - Brand         │            │
-│  │  - InvoiceNumber │                            │         │  - Category      │            │
-│  │  - InvoiceDate   │                            │         │  - UnitName      │            │
-│  │  - TotalAmount   │                            │         │  - SubUnitName   │            │
-│  │  - Status        │                            │         │  - ConversionRate│            │
-│  └────────┬─────────┘                            │         │  - CostPrice     │            │
-│           │                                      │         │  - SellingPrice  │            │
-│           │ 1:N                                  │         │  - VAT           │            │
-│           ▼                                      │         │  - ImageUrl      │            │
-│  ┌──────────────────┐                            │         │  - Status        │            │
-│  │ StockMovement    │◄───────────────────────────┘         └────────┬─────────┘            │
-│  │                  │                                               │                      │
-│  │  - MovementId    │                                               │ N:1                  │
-│  │  - MovementType  │                                               ▼                      │
-│  │  - ProductId     │                                      ┌──────────────────┐            │
-│  │  - WarehouseId   │                                      │   Promotion      │            │
-│  │  - Quantity      │                                      │                  │            │
-│  │  - ReferenceId   │                                      │  - PromotionId   │            │
-│  │  - ReferenceType │                                      │  - Name          │            │
-│  │  - CreatedBy     │                                      │  - Type          │            │
-│  │  - CreatedAt     │                                      │  - StartDate     │            │
-│  └──────────────────┘                                      │  - EndDate       │            │
-│                                                            │  - DiscountType  │            │
-│                                                            │  - DiscountValue │            │
-│                                                            │  - Conditions    │            │
-│  ┌──────────────────┐         ┌──────────────────┐         └──────────────────┘            │
-│  │   Attendance     │         │ LocationHistory  │                                         │
-│  │                  │         │                  │                                         │
-│  │  - AttendanceId  │         │  - LocationId    │                                         │
-│  │  - UserId        │         │  - UserId        │                                         │
-│  │  - Date          │         │  - Latitude      │                                         │
-│  │  - ClockInTime   │         │  - Longitude     │                                         │
-│  │  - ClockInLat    │         │  - RecordedAt    │                                         │
-│  │  - ClockInLong   │         │  - BatteryLevel  │                                         │
-│  │  - ClockOutTime  │         │  - IsMoving      │                                         │
-│  │  - ClockOutLat   │         │  - Accuracy      │                                         │
-│  │  - ClockOutLong  │         │                  │                                         │
-│  └──────────────────┘         └──────────────────┘                                         │
-│                                                                                             │
-└─────────────────────────────────────────────────────────────────────────────────────────────┘
-```
+### Technology Stack
+| Component | Choice | Rationale |
+|-----------|--------|-----------|
+| **Database** | PostgreSQL 16+ | Strong geospatial support (PostGIS), JSONB for flexible attributes, robust scaling. |
+| **ORM** | Entity Framework Core / Dapper | EF Core for complex domain logic, Dapper for high-performance reporting queries. |
+| **Naming Convention** | **snake_case** | Standard PostgreSQL naming convention (e.g., `sales_order`, `user_account`). |
+| **Timestamp** | `timestamptz` | All timestamps stored in UTC with timezone awareness. |
 
 ---
 
-## 3. Table Definitions
+## 2. Conceptual Data Model (Groups A-J)
 
-### 3.1 Core Master Data
+The database is organized into 10 functional groups:
 
-#### Distributors (NPP)
+### A. Organization & Access Control
+Manages internal hierarchy and user access.
+- `org_unit`: Organizational tree (Branch, Unit, Sales Group).
+- `employee`: Internal staff profiles.
+- `user_account`: System login credentials.
+- `role`, `permission`, `role_permission`, `user_role`: RBAC security.
 
-```sql
-CREATE TABLE Distributors (
-    DistributorId       UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorCode     VARCHAR(20)         NOT NULL UNIQUE,
-    Name                VARCHAR(200)        NOT NULL,
-    DistributorType     VARCHAR(50)         NOT NULL, -- 'NPP', 'DaiLy', 'TongThau'
-    TaxCode             VARCHAR(20)         NULL,
-    DistributorGroup    VARCHAR(10)         NOT NULL, -- 'A', 'B', 'C', 'D'
-    Channel             VARCHAR(10)         NOT NULL, -- 'GT', 'MT'
-    Region              VARCHAR(100)        NOT NULL,
-    Province            VARCHAR(100)        NOT NULL,
-    Address             VARCHAR(500)        NOT NULL,
-    ContactPerson       VARCHAR(100)        NULL,
-    Phone               VARCHAR(20)         NOT NULL,
-    Email               VARCHAR(100)        NULL,
-    BankName            VARCHAR(100)        NULL,
-    BankAccount         VARCHAR(50)         NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active', -- 'Active', 'Inactive'
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
-);
+### B. Territory & Route Management
+Manages geographical coverage and sales routes.
+- `region`, `province`, `district`, `ward`: Administrative hierarchy.
+- `route`: Sales routes (MCP).
+- `route_assignment`: Assignment of employees to routes (history tracking).
 
-CREATE INDEX IX_Distributors_Region ON Distributors(Region);
-CREATE INDEX IX_Distributors_Status ON Distributors(Status);
+### C. Sales Partners (Distributors)
+Manages the distribution network.
+- `distributor`: Distributors/Dealers information.
+- `distributor_bank_account`: Financial details.
+- `distributor_document`: Contracts and legal docs.
+
+### D. Customers
+Points of sale (POS) and outlets.
+- `customer`: Main customer/outlet entity.
+- `customer_address`: Multiple addresses (Delivery, Billing).
+- `customer_contact`: Key contacts at outlets.
+- `customer_route`: Assignment of customers to routes.
+- `customer_tag`, `tag`: Flexible tagging.
+- **Lookups**: `customer_type`, `customer_group`, `channel`.
+
+### E. Products
+Product catalog and configurations.
+- `product`: Stock Keeping Units (SKUs).
+- `brand`, `category`: Classification.
+- `uom`: Units of Measure (Carton, Box, Pcs).
+- `product_uom_conversion`: Conversion logic (e.g., 1 Carton = 24 Pcs).
+- `product_barcode`: Barcode mapping.
+
+### F. Pricing & Promotion
+Price logic and trade marketing.
+- `price_list`: Header for pricing versions.
+- `price_list_item`: Prices by SKU + UOM.
+- `promotion`: Promo programs.
+- `promotion_rule`: Logic for discounts/gifts.
+- `promotion_customer_scope`: Target audience for promos.
+
+### G. Sales Transactions
+Order to Cash (O2C) flow.
+- `sales_order`, `sales_order_line`: Orders captured by sales force.
+- `sales_order_status_history`: Audit trail of order lifecycle.
+- `delivery`, `delivery_line`: Fulfillment records.
+- `invoice`: Financial documents.
+- `payment`: Collection and debt settlement.
+
+### H. Inventory & Warehousing
+Stock management (Transaction-based).
+- `warehouse`: Storage locations (Distributor warehouse, van stock).
+- `inventory_txn`, `inventory_txn_line`: The **source of truth** for all stock movements (In, Out, Adjust).
+- `inventory_balance_snapshot`: Daily/Monthly snapshots for fast reporting.
+
+### I. Field Force Execution
+Daily activities of sales reps.
+- `visit`: GPS Check-in/out records.
+- `visit_action`: Actions performed (Survey, Order, Issue).
+- `merch_campaign`, `merch_criteria`: Display programs.
+- `merch_audit`, `merch_audit_item`: Display scoring/evaluation.
+- `attachment`: Photos/Files linked to visits.
+- `attendance`, `attendance_event`: Timekeeping.
+
+### J. KPI & Reporting
+Performance management.
+- `kpi_metric`: Definitions (Revenue, Visit Rate, etc.).
+- `kpi_target`: Targets appointed to staff/route.
+- `kpi_result`: Calculated results.
+
+---
+
+## 3. Entity Relationship Diagram (ERD)
+
+```mermaid
+erDiagram
+    %% A. Organization
+    org_unit ||--o{ employee : has
+    employee ||--o{ user_account : linked_to
+    user_account ||--o{ user_role : has
+    role ||--o{ user_role : assigned
+    role ||--o{ role_permission : defines
+
+    %% B. Territory
+    route ||--o{ route_assignment : assigned
+    employee ||--o{ route_assignment : works_on
+
+    %% C. Distributor
+    distributor ||--o{ warehouse : owns
+
+    %% D. Customer
+    customer ||--o{ customer_address : has
+    customer ||--o{ customer_route : in_route
+    route ||--o{ customer_route : contains
+    customer ||--o{ sales_order : places
+
+    %% E. Product
+    category ||--o{ product : classifies
+    product ||--o{ product_uom_conversion : has_units
+    product ||--o{ sales_order_line : sold_as
+
+    %% F. Pricing
+    price_list ||--o{ price_list_item : contains
+    customer ||--o{ price_list : assigned_list
+
+    %% G. Sales
+    sales_order ||--o{ sales_order_line : contains
+    sales_order ||--o{ delivery : triggers
+    delivery ||--o{ invoice : billed_via
+    invoice ||--o{ payment : paid_by
+
+    %% H. Inventory
+    warehouse ||--o{ inventory_txn : source_dest
+    inventory_txn ||--o{ inventory_txn_line : contains
+
+    %% I. Field Force
+    user_account ||--o{ visit : performs
+    visit ||--o{ visit_action : logs
+    visit ||--o{ merch_audit : includes
+    visit ||--o{ attachment : has_photos
 ```
 
-#### Users
+---
+
+## 4. Detailed Physical Schema (SQL Definitions)
+
+### A. Organization – Người dùng – Phân quyền
 
 ```sql
-CREATE TABLE Roles (
-    RoleId              SERIAL              PRIMARY KEY,
-    RoleName            VARCHAR(50)         NOT NULL UNIQUE, -- 'NVBH', 'GSBH', 'ASM', 'RSM', 'AdminNPP'
-    Description         VARCHAR(200)        NULL,
-    Permissions         JSONB               NULL -- JSON array of permissions
+CREATE TABLE org_unit (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    parent_id UUID REFERENCES org_unit(id),
+    type VARCHAR(50) NOT NULL, -- 'BRANCH', 'UNIT', 'TEAM'
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ -- Soft Delete support
 );
 
-CREATE TABLE Users (
-    UserId              UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    RoleId              INT                 NOT NULL REFERENCES Roles(RoleId),
-    Username            VARCHAR(50)         NOT NULL UNIQUE,
-    PasswordHash        VARCHAR(256)        NOT NULL,
-    EmployeeCode        VARCHAR(20)         NOT NULL,
-    FullName            VARCHAR(100)        NOT NULL,
-    Phone               VARCHAR(20)         NULL,
-    Email               VARCHAR(100)        NULL,
-    SupervisorId        UUID                NULL REFERENCES Users(UserId),
-    DeviceToken         VARCHAR(500)        NULL, -- FCM token
-    LastLoginAt         TIMESTAMPTZ         NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE employee (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    full_name VARCHAR(100) NOT NULL,
+    org_unit_id UUID NOT NULL REFERENCES org_unit(id),
+    email VARCHAR(100),
+    phone VARCHAR(20),
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IX_Users_DistributorId ON Users(DistributorId);
-CREATE INDEX IX_Users_RoleId ON Users(RoleId);
-CREATE INDEX IX_Users_SupervisorId ON Users(SupervisorId);
-```
-
-#### Customers
-
-```sql
-CREATE TABLE Customers (
-    CustomerId          UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    CustomerCode        VARCHAR(20)         NOT NULL,
-    Name                VARCHAR(200)        NOT NULL,
-    Phone               VARCHAR(20)         NOT NULL,
-    ContactPerson       VARCHAR(100)        NULL,
-    CustomerGroup       VARCHAR(10)         NOT NULL, -- 'A', 'B', 'C', 'D', 'E'
-    CustomerType        VARCHAR(50)         NOT NULL, -- 'TapHoa', 'HieuThuoc', 'MyPham', etc.
-    Channel             VARCHAR(10)         NOT NULL, -- 'GT', 'MT'
-    Latitude            DECIMAL(10,7)       NOT NULL,
-    Longitude           DECIMAL(10,7)       NOT NULL,
-    Address             VARCHAR(500)        NOT NULL,
-    Region              VARCHAR(100)        NOT NULL,
-    CreditLimit         DECIMAL(18,2)       NULL,
-    CurrentBalance      DECIMAL(18,2)       NOT NULL DEFAULT 0,
-    ImageUrl            VARCHAR(500)        NULL,
-    Notes               TEXT                NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT UQ_Customer_Code UNIQUE (DistributorId, CustomerCode)
+CREATE TABLE user_account (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    employee_id UUID REFERENCES employee(id),
+    last_login_at TIMESTAMPTZ,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IX_Customers_DistributorId ON Customers(DistributorId);
-CREATE INDEX IX_Customers_CustomerGroup ON Customers(CustomerGroup);
-CREATE INDEX IX_Customers_CustomerType ON Customers(CustomerType);
-CREATE INDEX IX_Customers_Location ON Customers(Latitude, Longitude);
-```
-
-#### Products
-
-```sql
-CREATE TABLE Products (
-    ProductId           UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    ProductCode         VARCHAR(20)         NOT NULL,
-    Name                VARCHAR(200)        NOT NULL,
-    Brand               VARCHAR(100)        NOT NULL,
-    Category            VARCHAR(100)        NOT NULL,
-    Supplier            VARCHAR(100)        NULL,
-    UnitName            VARCHAR(50)         NOT NULL, -- Main unit (Thùng)
-    SubUnitName         VARCHAR(50)         NOT NULL, -- Sub unit (Lon)
-    ConversionRate      INT                 NOT NULL DEFAULT 1, -- How many sub-units in main unit
-    CostPrice           DECIMAL(18,2)       NOT NULL,
-    CostPriceSub        DECIMAL(18,2)       NOT NULL,
-    SellingPrice        DECIMAL(18,2)       NOT NULL,
-    SellingPriceSub     DECIMAL(18,2)       NOT NULL,
-    VAT                 DECIMAL(5,2)        NOT NULL DEFAULT 0,
-    ImageUrl            VARCHAR(500)        NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT UQ_Product_Code UNIQUE (DistributorId, ProductCode)
+CREATE TABLE role (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL
 );
 
-CREATE INDEX IX_Products_DistributorId ON Products(DistributorId);
-CREATE INDEX IX_Products_Brand ON Products(Brand);
-CREATE INDEX IX_Products_Category ON Products(Category);
-
--- Full-text search index for product search
-CREATE INDEX IX_Products_Search ON Products USING GIN (to_tsvector('simple', Name || ' ' || Brand || ' ' || Category));
-```
-
-### 3.2 Operational Data
-
-#### Routes
-
-```sql
-CREATE TABLE Routes (
-    RouteId             UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    RouteCode           VARCHAR(20)         NOT NULL,
-    RouteName           VARCHAR(100)        NOT NULL,
-    AssignedUserId      UUID                NOT NULL REFERENCES Users(UserId),
-    DayOfWeek           INT                 NOT NULL, -- 0=Sunday, 1=Monday, etc.
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    UpdatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE permission (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(100) NOT NULL UNIQUE, -- e.g. 'order.create'
+    description TEXT
 );
 
+CREATE TABLE role_permission (
+    role_id UUID REFERENCES role(id),
+    permission_id UUID REFERENCES permission(id),
+    PRIMARY KEY (role_id, permission_id)
+);
+
+<<<<<<< Updated upstream
 CREATE TABLE RouteCustomers (
     RouteCustomerId     UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
     RouteId             UUID                NOT NULL REFERENCES Routes(RouteId),
@@ -438,87 +358,113 @@ CREATE TABLE ProductStock (
     LastUpdated         TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
 
     CONSTRAINT UQ_Product_Warehouse UNIQUE (WarehouseId, ProductId)
+=======
+CREATE TABLE user_role (
+    user_id UUID REFERENCES user_account(id),
+    role_id UUID REFERENCES role(id),
+    PRIMARY KEY (user_id, role_id)
+>>>>>>> Stashed changes
 );
 ```
 
-#### Stock Movements
+### B. Địa bàn – Tuyến – Phân công
 
 ```sql
-CREATE TABLE StockMovements (
-    MovementId          UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    MovementNumber      VARCHAR(20)         NOT NULL,
-    MovementType        VARCHAR(20)         NOT NULL, -- 'StockIn', 'StockOut', 'Transfer', 'Return', 'Adjustment'
-    WarehouseId         UUID                NOT NULL REFERENCES Warehouses(WarehouseId),
-    ToWarehouseId       UUID                NULL REFERENCES Warehouses(WarehouseId), -- For transfers
-    ReferenceType       VARCHAR(50)         NULL, -- 'SalesInvoice', 'PurchaseOrder', 'Manual'
-    ReferenceId         UUID                NULL,
-    Notes               VARCHAR(500)        NULL,
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Draft',
-    CreatedBy           UUID                NOT NULL REFERENCES Users(UserId),
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-    ApprovedBy          UUID                NULL REFERENCES Users(UserId),
-    ApprovedAt          TIMESTAMPTZ         NULL
+CREATE TABLE region (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE,
+    name VARCHAR(100)
 );
 
-CREATE TABLE StockMovementDetails (
-    DetailId            UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    MovementId          UUID                NOT NULL REFERENCES StockMovements(MovementId) ON DELETE CASCADE,
-    ProductId           UUID                NOT NULL REFERENCES Products(ProductId),
-    Quantity            INT                 NOT NULL,
-    UnitType            VARCHAR(10)         NOT NULL,
-    Notes               VARCHAR(200)        NULL
+CREATE TABLE route (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    distributor_id UUID NOT NULL, -- Logical link to Distributor
+    status VARCHAR(20) DEFAULT 'ACTIVE'
+);
+
+CREATE TABLE route_assignment (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    route_id UUID REFERENCES route(id),
+    employee_id UUID REFERENCES employee(id),
+    start_date DATE NOT NULL,
+    end_date DATE,
+    is_primary BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
-#### Receivables
+### C. Đối tác bán hàng (Distributor)
 
 ```sql
-CREATE TABLE CustomerTransactions (
-    TransactionId       UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    CustomerId          UUID                NOT NULL REFERENCES Customers(CustomerId),
-    TransactionType     VARCHAR(20)         NOT NULL, -- 'Invoice', 'Payment', 'Adjustment', 'Refund'
-    ReferenceType       VARCHAR(50)         NULL,
-    ReferenceId         UUID                NULL,
-    Amount              DECIMAL(18,2)       NOT NULL, -- Positive for debit, negative for credit
-    BalanceBefore       DECIMAL(18,2)       NOT NULL,
-    BalanceAfter        DECIMAL(18,2)       NOT NULL,
-    Notes               VARCHAR(500)        NULL,
-    CreatedBy           UUID                NOT NULL REFERENCES Users(UserId),
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE distributor (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    tax_code VARCHAR(50),
+    region_id UUID REFERENCES region(id),
+    address TEXT,
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IX_CustomerTransactions_Customer ON CustomerTransactions(CustomerId, CreatedAt DESC);
+CREATE TABLE distributor_bank_account (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    distributor_id UUID REFERENCES distributor(id),
+    bank_name VARCHAR(100),
+    account_number VARCHAR(50),
+    account_name VARCHAR(100)
+);
 ```
 
-### 3.4 Promotions
+### D. Khách hàng (Customer)
 
 ```sql
-CREATE TABLE Promotions (
-    PromotionId         UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    DistributorId       UUID                NOT NULL REFERENCES Distributors(DistributorId),
-    PromotionCode       VARCHAR(20)         NOT NULL,
-    Name                VARCHAR(200)        NOT NULL,
-    Description         TEXT                NULL,
-    PromotionType       VARCHAR(50)         NOT NULL, -- 'PercentDiscount', 'FixedDiscount', 'BuyXGetY', 'GiftItem'
-    StartDate           DATE                NOT NULL,
-    EndDate             DATE                NOT NULL,
-    MinQuantity         INT                 NULL,
-    MinAmount           DECIMAL(18,2)       NULL,
-    DiscountPercent     DECIMAL(5,2)        NULL,
-    DiscountAmount      DECIMAL(18,2)       NULL,
-    MaxDiscount         DECIMAL(18,2)       NULL,
-    ApplicableProducts  JSONB               NULL, -- JSON array of ProductIds
-    ApplicableCustomers JSONB               NULL, -- JSON: {"types": [], "groups": []}
-    Status              VARCHAR(20)         NOT NULL DEFAULT 'Active',
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE customer_group (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) UNIQUE,
+    name VARCHAR(100)
 );
 
-CREATE INDEX IX_Promotions_Distributor_Date ON Promotions(DistributorId, StartDate, EndDate);
-CREATE INDEX IX_Promotions_ApplicableProducts ON Promotions USING GIN (ApplicableProducts);
-CREATE INDEX IX_Promotions_ApplicableCustomers ON Promotions USING GIN (ApplicableCustomers);
+CREATE TABLE customer (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    distributor_id UUID REFERENCES distributor(id),
+    customer_group_id UUID REFERENCES customer_group(id),
+    channel VARCHAR(50), -- 'GT', 'MT'
+    type VARCHAR(50), -- 'PHARMACY', 'GROCERY'
+    credit_limit DECIMAL(18,2) DEFAULT 0, -- Added traceability field
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    deleted_at TIMESTAMPTZ,
+    CONSTRAINT uq_dist_cust_code UNIQUE (distributor_id, code)
+);
+
+CREATE TABLE customer_address (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id UUID REFERENCES customer(id),
+    address_line TEXT NOT NULL,
+    ward_id VARCHAR(20),
+    district_id VARCHAR(20),
+    province_id VARCHAR(20),
+    latitude DECIMAL(10,8),
+    longitude DECIMAL(11,8),
+    is_default BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE customer_route (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    customer_id UUID REFERENCES customer(id),
+    route_id UUID REFERENCES route(id),
+    visit_frequency VARCHAR(20), -- 'F2', 'F4', 'F8'
+    visit_days INT[], -- [2,4,6] Array for query optimization (Mon, Wed, Fri)
+    start_date DATE NOT NULL,
+    end_date DATE
+);
 ```
 
+<<<<<<< Updated upstream
 ### 3.5 KPI Management (NEW in v2.0)
 
 #### KPI Targets
@@ -622,250 +568,285 @@ CREATE INDEX IX_DisplayScores_Pending ON DisplayScores(ScoredByUserId) WHERE Sco
 ### 3.8 Monitoring & Tracking
 
 #### Attendance
+=======
+### E. Sản phẩm (Product)
+>>>>>>> Stashed changes
 
 ```sql
-CREATE TABLE Attendance (
-    AttendanceId        UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    AttendanceDate      DATE                NOT NULL,
-    ClockInTime         TIMESTAMPTZ         NULL,
-    ClockInLatitude     DECIMAL(10,7)       NULL,
-    ClockInLongitude    DECIMAL(10,7)       NULL,
-    ClockOutTime        TIMESTAMPTZ         NULL,
-    ClockOutLatitude    DECIMAL(10,7)       NULL,
-    ClockOutLongitude   DECIMAL(10,7)       NULL,
-    WorkingMinutes      INT                 NULL,
-    Notes               VARCHAR(500)        NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW(),
-
-    CONSTRAINT UQ_User_Date UNIQUE (UserId, AttendanceDate)
+CREATE TABLE brand (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL
 );
 
-CREATE INDEX IX_Attendance_User ON Attendance(UserId, AttendanceDate DESC);
+CREATE TABLE product (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    brand_id UUID REFERENCES brand(id),
+    brand_id UUID REFERENCES brand(id),
+    primary_uom_id UUID, 
+    status VARCHAR(20) DEFAULT 'ACTIVE',
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE TABLE uom (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(20) NOT NULL, 
+    name VARCHAR(50)
+);
+
+CREATE TABLE product_uom_conversion (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id UUID REFERENCES product(id),
+    from_uom_id UUID REFERENCES uom(id),
+    to_uom_id UUID REFERENCES uom(id),
+    factor DECIMAL(10,4) NOT NULL,
+    is_base BOOLEAN DEFAULT FALSE
+);
 ```
 
-#### Location History
+### F. Giá – Khuyến mãi
 
 ```sql
-CREATE TABLE LocationHistory (
-    LocationId          BIGSERIAL           PRIMARY KEY,
-    UserId              UUID                NOT NULL REFERENCES Users(UserId),
-    Latitude            DECIMAL(10,7)       NOT NULL,
-    Longitude           DECIMAL(10,7)       NOT NULL,
-    Accuracy            REAL                NULL,
-    BatteryLevel        INT                 NULL,
-    IsMoving            BOOLEAN             NULL,
-    RecordedAt          TIMESTAMPTZ         NOT NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE price_list (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(100),
+    valid_from DATE,
+    valid_to DATE,
+    status VARCHAR(20),
+    deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IX_LocationHistory_User_Time ON LocationHistory(UserId, RecordedAt DESC);
+CREATE TABLE price_list_item (
+    price_list_id UUID REFERENCES price_list(id),
+    product_id UUID REFERENCES product(id),
+    uom_id UUID REFERENCES uom(id),
+    price DECIMAL(18,2) NOT NULL,
+    PRIMARY KEY (price_list_id, product_id, uom_id)
+);
 
--- Partitioning by month for large datasets (optional)
--- Consider auto-deletion of records older than 90 days
+CREATE TABLE promotion (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(255),
+    start_date TIMESTAMPTZ,
+    end_date TIMESTAMPTZ,
+    status VARCHAR(20),
+    deleted_at TIMESTAMPTZ
+);
 ```
 
-### 3.6 Audit & Sync
+### G. Bán hàng (Full O2C Flow)
 
 ```sql
-CREATE TABLE AuditLogs (
-    AuditId             BIGSERIAL           PRIMARY KEY,
-    UserId              UUID                NULL,
-    Action              VARCHAR(50)         NOT NULL, -- 'Create', 'Update', 'Delete', 'Login', etc.
-    EntityType          VARCHAR(100)        NOT NULL,
-    EntityId            VARCHAR(100)        NULL,
-    OldValues           JSONB               NULL,
-    NewValues           JSONB               NULL,
-    IpAddress           VARCHAR(50)         NULL,
-    UserAgent           VARCHAR(500)        NULL,
-    CreatedAt           TIMESTAMPTZ         NOT NULL DEFAULT NOW()
+CREATE TABLE sales_order (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    distributor_id UUID REFERENCES distributor(id),
+    customer_id UUID REFERENCES customer(id),
+    salesman_id UUID REFERENCES employee(id),
+    route_id UUID REFERENCES route(id),
+    visit_id UUID, 
+    order_date TIMESTAMPTZ NOT NULL,
+    total_amount DECIMAL(18,2) NOT NULL,
+    discount_amount DECIMAL(18,2) DEFAULT 0,
+    status VARCHAR(20) NOT NULL, -- 'DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED'
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX IX_AuditLogs_Entity ON AuditLogs(EntityType, EntityId);
-CREATE INDEX IX_AuditLogs_User ON AuditLogs(UserId, CreatedAt DESC);
-
-CREATE TABLE SyncMetadata (
-    SyncId              UUID                PRIMARY KEY DEFAULT gen_random_uuid(),
-    EntityType          VARCHAR(100)        NOT NULL,
-    EntityId            UUID                NOT NULL,
-    LastModified        TIMESTAMPTZ         NOT NULL,
-    Version             INT                 NOT NULL DEFAULT 1,
-
-    CONSTRAINT UQ_Sync_Entity UNIQUE (EntityType, EntityId)
+CREATE TABLE sales_order_line (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sales_order_id UUID REFERENCES sales_order(id),
+    product_id UUID REFERENCES product(id),
+    uom_id UUID REFERENCES uom(id),
+    quantity DECIMAL(12,4) NOT NULL,
+    unit_price DECIMAL(18,2) NOT NULL, -- Snapshot of price at time of order (Traceability)
+    total_price DECIMAL(18,2) NOT NULL,
+    promotion_id UUID REFERENCES promotion(id), -- Traceability: Which promo applied?
+    discount_amount DECIMAL(18,2) DEFAULT 0
 );
 
-CREATE INDEX IX_SyncMetadata_Modified ON SyncMetadata(EntityType, LastModified);
+CREATE TABLE sales_order_status_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    sales_order_id UUID REFERENCES sales_order(id),
+    from_status VARCHAR(20),
+    to_status VARCHAR(20),
+    changed_by UUID REFERENCES user_account(id),
+    changed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Fulfillment: Delivery Note / Phieu Xuat Kho
+CREATE TABLE delivery (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    delivery_number VARCHAR(50) NOT NULL UNIQUE,
+    sales_order_id UUID REFERENCES sales_order(id),
+    warehouse_id UUID REFERENCES warehouse(id),
+    delivery_date TIMESTAMPTZ,
+    status VARCHAR(20), -- 'PENDING', 'SHIPPED', 'DELIVERED'
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE delivery_line (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    delivery_id UUID REFERENCES delivery(id),
+    product_id UUID REFERENCES product(id),
+    uom_id UUID REFERENCES uom(id),
+    quantity_ordered DECIMAL(12,4) NOT NULL,
+    quantity_delivered DECIMAL(12,4) NOT NULL -- Supports partial delivery
+);
+
+-- Finance: Invoice / Hoa Don
+CREATE TABLE invoice (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    invoice_number VARCHAR(50) NOT NULL UNIQUE,
+    sales_order_id UUID REFERENCES sales_order(id), -- Or refer delivery_id
+    customer_id UUID REFERENCES customer(id),
+    order_date DATE,
+    invoice_date DATE,
+    due_date DATE,
+    total_amount DECIMAL(18,2),
+    tax_amount DECIMAL(18,2),
+    status VARCHAR(20) -- 'DRAFT', 'ISSUED', 'PAID', 'OVERDUE'
+);
+
+-- Finance: Payment / Thanh Toan
+CREATE TABLE payment (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    payment_number VARCHAR(50) NOT NULL UNIQUE,
+    invoice_id UUID REFERENCES invoice(id),
+    customer_id UUID REFERENCES customer(id),
+    payment_date TIMESTAMPTZ,
+    amount DECIMAL(18,2),
+    payment_method VARCHAR(50), -- 'CASH', 'TRANSFER'
+    status VARCHAR(20)
+);
+```
+
+### H. Kho – Tồn – XNT (High Performance)
+
+```sql
+CREATE TABLE warehouse (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL,
+    name VARCHAR(100),
+    distributor_id UUID REFERENCES distributor(id),
+    type VARCHAR(20), -- 'MAIN', 'VAN_SALES'
+    deleted_at TIMESTAMPTZ
+);
+
+-- Snapshot Table for High-Performance Queries
+CREATE TABLE inventory_balance (
+    warehouse_id UUID REFERENCES warehouse(id),
+    product_id UUID REFERENCES product(id),
+    quantity DECIMAL(12,4) NOT NULL DEFAULT 0,
+    last_updated_at TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (warehouse_id, product_id)
+);
+
+-- Transaction Table (Source of Truth)
+CREATE TABLE inventory_txn (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    txn_number VARCHAR(50) NOT NULL,
+    warehouse_id UUID REFERENCES warehouse(id),
+    txn_type VARCHAR(50) NOT NULL, -- 'IMPORT', 'EXPORT_SALES', 'ADJUSTMENT'
+    txn_date TIMESTAMPTZ DEFAULT NOW(),
+    reference_id UUID, 
+    reference_type VARCHAR(50), 
+    status VARCHAR(20)
+);
+
+CREATE TABLE inventory_txn_line (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    inventory_txn_id UUID REFERENCES inventory_txn(id),
+    product_id UUID REFERENCES product(id),
+    uom_id UUID REFERENCES uom(id),
+    quantity DECIMAL(12,4) NOT NULL, 
+    direction INT NOT NULL -- 1 for IN, -1 for OUT
+);
+```
+
+### I. Field Force (No changes needed)
+*(Refer to Group I in overview)*
+
+### J. KPI (No changes needed)
+*(Refer to Group J in overview)*
+
+### K. System & Audit (New)
+
+```sql
+CREATE TABLE system_audit_log (
+    id BIGSERIAL PRIMARY KEY,
+    table_name VARCHAR(50) NOT NULL,
+    record_id UUID NOT NULL,
+    action VARCHAR(10) NOT NULL, -- 'INSERT', 'UPDATE', 'DELETE'
+    old_value JSONB,
+    new_value JSONB,
+    changed_by UUID REFERENCES user_account(id),
+    changed_at TIMESTAMPTZ DEFAULT NOW()
+);
 ```
 
 ---
 
-## 4. Data Flow Diagrams
+## 5. Indexing & Partitioning Strategy
 
-### 4.1 Order Processing Flow
+### Indexing
+1.  **Search Performance**: `GIN` indexes on `product(name)` and `customer(name)` for fast text search.
+2.  **Geospatial**: `GIST` indexes on `customer_address(latitude, longitude)` for radius search.
+3.  **Foreign Keys**: All FK columns must be indexed to avoid table scan locks during updates.
+4.  **Covering Indexes**: `sales_order(customer_id, order_date) INCLUDE (total_amount)` for reporting.
+5.  **Partial Indexing (Soft Delete Optimization)**:
+    - Create indexes ONLY on active records to reduce index size and improve speed.
+    - Example: `CREATE INDEX idx_product_active ON product(code) WHERE deleted_at IS NULL;`
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              ORDER PROCESSING DATA FLOW                                  │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│  1. CREATE ORDER (Mobile)                                                               │
-│  ─────────────────────────                                                              │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐              │
-│  │  Customer   │───►│   Order     │───►│ OrderDetail │───►│   Product   │              │
-│  │  (lookup)   │    │  (insert)   │    │  (insert)   │    │  (lookup)   │              │
-│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘              │
-│                           │                   │                                         │
-│                           │                   ▼                                         │
-│                           │           ┌─────────────┐                                  │
-│                           │           │  Promotion  │                                  │
-│                           │           │  (lookup)   │                                  │
-│                           │           └─────────────┘                                  │
-│                           │                                                             │
-│  2. APPROVE ORDER (Web)                                                                 │
-│  ─────────────────────────                                                              │
-│                           ▼                                                             │
-│                    ┌─────────────┐                                                     │
-│                    │   Order     │                                                     │
-│                    │  (update    │                                                     │
-│                    │   status)   │                                                     │
-│                    └──────┬──────┘                                                     │
-│                           │                                                             │
-│  3. CREATE INVOICE                                                                      │
-│  ─────────────────                                                                      │
-│                           ▼                                                             │
-│                    ┌─────────────┐    ┌─────────────┐                                  │
-│                    │SalesInvoice │───►│ Customer    │                                  │
-│                    │  (insert)   │    │(update bal) │                                  │
-│                    └──────┬──────┘    └─────────────┘                                  │
-│                           │                   │                                         │
-│                           │                   ▼                                         │
-│                           │           ┌─────────────┐                                  │
-│                           │           │  Customer   │                                  │
-│                           │           │ Transaction │                                  │
-│                           │           │  (insert)   │                                  │
-│                           │           └─────────────┘                                  │
-│                           │                                                             │
-│  4. STOCK OUT                                                                           │
-│  ────────────                                                                           │
-│                           ▼                                                             │
-│                    ┌─────────────┐    ┌─────────────┐                                  │
-│                    │   Stock     │───►│ ProductStock│                                  │
-│                    │  Movement   │    │  (update)   │                                  │
-│                    │  (insert)   │    └─────────────┘                                  │
-│                    └─────────────┘                                                     │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-```
+### Delete Strategy (Soft vs Hard)
+1.  **Soft Delete**: All Master Data (Customer, Product, Employee) and Transactions (Order, Invoice) use `deleted_at`.
+    - **Advantage**: Traceability, Recovery, Audit.
+    - **Implementation**: Application filters `WHERE deleted_at IS NULL` by default.
+2.  **Hard Delete**: Only allowed for:
+    - Temporary staging tables.
+    - `system_audit_log` (Archived then purged after X years).
+    - `inventory_balance` (Recalculated from transactions).
 
-### 4.2 Mobile Sync Flow
+### Partitioning
+1.  **`sales_order` & `sales_order_line`**: Partition by Range on `order_date` (Monthly).
+2.  **`inventory_txn`**: Partition by Range on `txn_date` (Monthly).
+3.  **`visit`**: Partition by Range on `checkin_time` (Monthly).
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              MOBILE SYNC DATA FLOW                                       │
-├─────────────────────────────────────────────────────────────────────────────────────────┤
-│                                                                                         │
-│  DOWNLOAD (Server → Mobile)                                                             │
-│  ─────────────────────────                                                              │
-│                                                                                         │
-│  Server Tables                 API Response                Mobile SQLite                │
-│  ─────────────                 ────────────                ─────────────                │
-│                                                                                         │
-│  ┌─────────────┐                                          ┌─────────────┐              │
-│  │ Customers   │─────┐                                    │ customers   │              │
-│  └─────────────┘     │                                    └─────────────┘              │
-│  ┌─────────────┐     │         ┌─────────────┐           ┌─────────────┐              │
-│  │ Products    │────►├────────►│  Delta Sync │──────────►│ products    │              │
-│  └─────────────┘     │         │   Response  │           └─────────────┘              │
-│  ┌─────────────┐     │         │   (JSON)    │           ┌─────────────┐              │
-│  │ Promotions  │─────┘         └─────────────┘           │ promotions  │              │
-│  └─────────────┘                                          └─────────────┘              │
-│  ┌─────────────┐                                          ┌─────────────┐              │
-│  │SyncMetadata │───────────────────────────────────────►  │sync_metadata│              │
-│  └─────────────┘                                          └─────────────┘              │
-│                                                                                         │
-│  UPLOAD (Mobile → Server)                                                               │
-│  ────────────────────────                                                               │
-│                                                                                         │
-│  Mobile SQLite                 API Request                 Server Tables               │
-│  ─────────────                 ───────────                 ─────────────               │
-│                                                                                         │
-│  ┌─────────────┐                                          ┌─────────────┐              │
-│  │pending_orders│─────┐                                   │   Orders    │              │
-│  └─────────────┘      │                                   └─────────────┘              │
-│  ┌─────────────┐      │        ┌─────────────┐           ┌─────────────┐              │
-│  │pending_visits│────►├───────►│  Sync Upload│──────────►│   Visits    │              │
-│  └─────────────┘      │        │   Request   │           └─────────────┘              │
-│  ┌─────────────┐      │        │   (JSON)    │           ┌─────────────┐              │
-│  │pending_photos│─────┘        └─────────────┘           │ VisitPhotos │              │
-│  └─────────────┘                                          └─────────────┘              │
-│                                                                                         │
-└─────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 5. Indexing Strategy
-
-### 5.1 Primary Query Patterns
-
-| Query Pattern | Tables | Index |
-|--------------|--------|-------|
-| Customer by route | Customers, RouteCustomers | IX_RouteCustomers_Route |
-| Orders by status | Orders | IX_Orders_Status |
-| Visits by user & date | Visits | IX_Visits_User |
-| Products by category | Products | IX_Products_Category |
-| Location history | LocationHistory | IX_LocationHistory_User_Time |
-| Sync delta queries | SyncMetadata | IX_SyncMetadata_Modified |
-| Product search | Products | IX_Products_Search (GIN) |
-| Promotion conditions | Promotions | IX_Promotions_ApplicableProducts (GIN) |
-
-### 5.2 Performance Considerations
-
-- Use covering indexes for frequently accessed columns
-- Partition LocationHistory by month (if exceeding free tier limits)
-- Archive data older than 1 year to separate tables
-- Use JSONB GIN indexes for flexible querying of JSON data
-- Consider partial indexes for common filter conditions
-
----
-
-## 6. Data Retention Policy
-
-| Data Type | Retention Period | Action |
-|-----------|------------------|--------|
-| **Location History** | 90 days | Auto-delete via pg_cron or scheduled function |
-| **Audit Logs** | 1 year | Archive to cold storage |
-| **Visit Photos** | 1 year | Move to archive tier |
-| **Orders** | 5 years | Retain for compliance |
-| **Master Data** | Indefinite | Soft delete only |
-
-### Auto-Cleanup Function
-
+### Temporal Indexing (Rule #8 Support)
+To support efficient "Point-in-Time" queries for Assignments and Routes (SCD Type 2):
 ```sql
--- Create cleanup function
-CREATE OR REPLACE FUNCTION cleanup_old_data()
-RETURNS void AS $$
-BEGIN
-    -- Delete location history older than 90 days
-    DELETE FROM LocationHistory WHERE RecordedAt < NOW() - INTERVAL '90 days';
+-- Ensure no overlapping assignments for the same employee
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+CREATE INDEX idx_route_assignment_period ON route_assignment 
+USING GIST (employee_id, daterange(start_date, end_date, '[]'));
 
-    -- Delete audit logs older than 1 year
-    DELETE FROM AuditLogs WHERE CreatedAt < NOW() - INTERVAL '1 year';
-
-    -- Vacuum to reclaim space
-    VACUUM ANALYZE LocationHistory;
-    VACUUM ANALYZE AuditLogs;
-END;
-$$ LANGUAGE plpgsql;
-
--- Schedule with pg_cron (if available) or external scheduler
--- SELECT cron.schedule('weekly-cleanup', '0 3 * * 0', 'SELECT cleanup_old_data()');
+-- Ensure efficient query of "Which route was this customer in on Date X?"
+CREATE INDEX idx_customer_route_period ON customer_route 
+USING GIST (customer_id, daterange(start_date, end_date, '[]'));
 ```
 
 ---
 
-## 7. Related Documents
+## 6. Migration Strategy
 
-- [05-API-DESIGN.md](05-API-DESIGN.md) - API specifications
-- [07-SECURITY-ARCHITECTURE.md](07-SECURITY-ARCHITECTURE.md) - Data security
-- [adr/ADR-003-postgresql.md](adr/ADR-003-postgresql.md) - Database decision
+This project will follow a **Code-First / Migration-Script** approach using Flyway or EF Core Migrations.
+
+### Zero-Downtime Principles
+1.  **Expand-Contract Pattern**:
+    - **Step 1 (Expand)**: Add new columns/tables. Deploy code that writes to BOTH old and new columns.
+    - **Step 2 (Migrate)**: Backfill data from old to new.
+    - **Step 3 (Contract)**: Deploy code that only reads/writes to new columns. Remove usage of old.
+2.  **Lock Avoidance**:
+    - Use `concurrently` for index creation.
+    - Add columns with `DEFAULT NULL` first, then backfill, then set `NOT NULL`.
+
+### Migration Pipeline
+- **Dev**: Auto-migrate on startup (or via CLI).
+- **Staging**: CI pipeline runs `dry-run` to generate SQL script for review.
+- **Prod**: DBA/Lead reviews SQL script. Automated execution via maintenance window or zero-downtime rolling update.
+
+---
