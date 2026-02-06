@@ -64,13 +64,13 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Set up local development environment for all team members
 
 **Subtasks:**
-- [ ] Install .NET 8 SDK
-- [ ] Install PostgreSQL 16 locally
-- [ ] Set up Docker for containerized development
-- [ ] Install Android Studio (API 34+)
-- [ ] Install Node.js 18+ for React web
-- [ ] Configure git repository with proper branching strategy
-- [ ] Set up code quality tools (SonarQube, ESLint, ktlint)
+- ~~ Install .NET 8 SDK~~
+- ~~ Install PostgreSQL 16 locally~~
+- ~~ Set up Docker for containerized development~~
+- ~~ Install Android Studio (API 34+)~~
+- ~~ Install Node.js 18+ for React web~~
+- ~~ Configure git repository with proper branching strategy~~
+- ~~ Set up code quality tools (SonarQube, ESLint, ktlint)~~
 
 **Deliverables:**
 - Local dev environment guide (README-dev.md)
@@ -85,12 +85,12 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Build automated deployment pipelines
 
 **Subtasks:**
-- ~~Set up GitHub Actions for backend~~ (not needed)
-- [ ] Set up GitHub Actions for Android (build only)
-- [ ] Set up GitHub Actions for React web
-- [ ] Configure automated testing on PR
-- [ ] Set up code coverage reporting
-- [ ] Configure environment variables (dev, staging, prod)
+- [ ] Set up GitHub Actions for backend (Giang)
+- [ ] Set up GitHub Actions for Android (Trung)
+- [ ] Set up GitHub Actions for React web (Trung)
+- [ ] Configure automated testing on PR (not need now)
+- [ ] Set up code coverage reporting (not need now)
+- [ ] Configure environment variables (dev, staging, prod) (Giang)
 
 **Deliverables:**
 - Working CI/CD pipelines
@@ -105,13 +105,13 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Set up free-tier cloud services
 
 **Subtasks:**
-- [x] Create Azure App Service (F1 Free) for API
-- [ ] Create Neon PostgreSQL free instance 
-- [ ] Create Vercel account for web deployment
-- [ ] Configure Azure Blob Storage (5GB free) for images
-- [ ] Set up Firebase project for FCM
-- [ ] Get Google Maps API key
-- [ ] Configure DNS (if custom domain)
+- [x] Create Azure App Service (F1 Free) for API (Trung)
+- [ ] Create Neon PostgreSQL free instance (Trung)
+- [ ] Create Vercel account for web deployment (Giang)
+- [ ] Configure Azure Blob Storage (5GB free) for images (Trung)
+- [ ] Set up Firebase project for FCM (Giang)
+- [ ] Get Google Maps API key (Trung)
+- [ ] Configure DNS (if custom domain) (Giang)
 
 **Deliverables:**
 - Production infrastructure document (infrastructure.md)
