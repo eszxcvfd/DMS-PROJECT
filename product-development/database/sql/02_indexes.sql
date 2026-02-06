@@ -1,5 +1,5 @@
--- ============================================================
--- DILIGO DMS - Indexes & Performance Optimization
+﻿-- ============================================================
+-- DMS VIPPro - Indexes & Performance Optimization
 -- Distribution Management System
 -- Version: 3.1 | PostgreSQL 16+
 -- ============================================================

@@ -1,5 +1,5 @@
-# Product Requirements Document (PRD) - Version 2.0
-## Hệ thống Quản lý Phân phối (DMS - Distribution Management System) cho DILIGO
+﻿# Product Requirements Document (PRD) - Version 2.0
+## Hệ thống Quản lý Phân phối (DMS - Distribution Management System) cho VIPPro
 
 ---
 
@@ -18,10 +18,10 @@
 ## 1. Tổng quan sản phẩm
 
 ### 1.1 Tên sản phẩm
-**DILIGO DMS** - Hệ thống Quản lý Phân phối
+**DMS VIPPro** - Hệ thống Quản lý Phân phối
 
 ### 1.2 Tầm nhìn sản phẩm
-Xây dựng một hệ thống DMS toàn diện giúp DILIGO quản lý hiệu quả mạng lưới phân phối, giám sát hoạt động bán hàng thực địa, và tối ưu hóa quy trình từ đặt hàng đến giao hàng trên toàn quốc.
+Xây dựng một hệ thống DMS toàn diện giúp VIPPro quản lý hiệu quả mạng lưới phân phối, giám sát hoạt động bán hàng thực địa, và tối ưu hóa quy trình từ đặt hàng đến giao hàng trên toàn quốc.
 
 ### 1.3 Mục tiêu kinh doanh
 - Số hóa toàn bộ quy trình bán hàng và phân phối
@@ -126,7 +126,7 @@ Xây dựng một hệ thống DMS toàn diện giúp DILIGO quản lý hiệu q
 | **Báo cáo đặt hàng theo NV** | Tổng hợp đơn đặt hàng theo từng nhân viên |
 | **Báo cáo bán hàng theo NV** | Tổng hợp doanh số bán hàng theo từng nhân viên |
 | **Báo cáo tổng hợp phân tích KPI** | Theo dõi các chỉ tiêu KPI theo loại |
-| **Mở mới NPP** | - Nhập thông tin cơ bản NPP (tên, mã số thuế, địa chỉ, liên hệ)<br>- Thông tin về gia đình chủ NPP<br>- Bất ổn 6 quả phúc<br>- Thông tin về nhân sự<br>- Thông tin về cơ sở hạ tầng<br>- Mục tiêu Diligo<br>- Chụp ảnh: cửa hàng, chủ NPP, họp NPP, hồ sơ, ĐKKD<br>- Đọc cẩm nang NPP trước khi cập nhật |
+| **Mở mới NPP** | - Nhập thông tin cơ bản NPP (tên, mã số thuế, địa chỉ, liên hệ)<br>- Thông tin về gia đình chủ NPP<br>- Bất ổn 6 quả phúc<br>- Thông tin về nhân sự<br>- Thông tin về cơ sở hạ tầng<br>- Mục tiêu VIPPro<br>- Chụp ảnh: cửa hàng, chủ NPP, họp NPP, hồ sơ, ĐKKD<br>- Đọc cẩm nang NPP trước khi cập nhật |
 | **Quản lý tuyến** | - Tạo tuyến mới (mã tuyến, tên, nhóm, NV phụ trách, ngày đi, ngày bắt đầu)<br>- Thêm KH vào tuyến<br>- Sửa tuyến cho nhiều KH<br>- Import tuyến bằng file Excel |
 | **Chia chỉ tiêu KPI cho NV** | - Chỉ tiêu chung (số KH viếng thăm, KH mới, đơn hàng, doanh số, doanh thu, sản lượng, SKU, số giờ làm việc)<br>- Chỉ tiêu sản phẩm trọng tâm<br>- Ngày hiệu lực từ/đến |
 
@@ -364,7 +364,7 @@ Xây dựng một hệ thống DMS toàn diện giúp DILIGO quản lý hiệu q
 
 **Cấu trúc phân cấp (Cập nhật v2.1):**
 ```
-DILIGO
+VIPPro
 ├── BPTKH (Bộ phận Thị trường Kinh doanh)
 │   ├── GT (General Trade - Kênh truyền thống)
 │   │   ├── OTC
@@ -565,11 +565,11 @@ DILIGO
 
 ### 11.2 Tài liệu tham chiếu
 - docs/baocaochucnang.md - Bảng mô tả chức năng
-- docs/1. DILIGO.TaiLieu.NVBH.md - Tài liệu hướng dẫn NVBH
-- docs/1. DILIGO.TaiLieu.ThucHanh_NVBH.md - Tài liệu thực hành NVBH
-- docs/2. DILIGO.TaiLieu.ThucHanh_GSBH.md - Tài liệu thực hành GSBH
-- docs/3. DILIGO.TaiLieu.ThucHanh_AdminNPP.md - Tài liệu Admin NPP
-- docs/3. DILIGO.TaiLieu.ThucHanh_AdminNPP2.md - Tài liệu Admin NPP (phần 2)
+- docs/1. VIPPro.TaiLieu.NVBH.md - Tài liệu hướng dẫn NVBH
+- docs/1. VIPPro.TaiLieu.ThucHanh_NVBH.md - Tài liệu thực hành NVBH
+- docs/2. VIPPro.TaiLieu.ThucHanh_GSBH.md - Tài liệu thực hành GSBH
+- docs/3. VIPPro.TaiLieu.ThucHanh_AdminNPP.md - Tài liệu Admin NPP
+- docs/3. VIPPro.TaiLieu.ThucHanh_AdminNPP2.md - Tài liệu Admin NPP (phần 2)
 - docs/khach_hang.csv - Dữ liệu mẫu khách hàng
 - docs/san_pham.csv - Dữ liệu mẫu sản phẩm
 - docs/nha_phan_phoi.csv - Dữ liệu mẫu NPP

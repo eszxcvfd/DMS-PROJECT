@@ -1,4 +1,4 @@
-# ADR-009: Organization Hierarchy Design Pattern
+﻿# ADR-009: Organization Hierarchy Design Pattern
 
 ## Status
 
@@ -10,10 +10,10 @@
 
 ## Context
 
-DILIGO DMS needs to model a complex organizational hierarchy for FMCG distribution:
+DMS VIPPro needs to model a complex organizational hierarchy for FMCG distribution:
 
 ```text
-DILIGO (Company)
+VIPPro (Company)
 └── BPTKH (Business Division)
     ├── GT Division (General Trade)
     │   ├── Miền Bắc Region

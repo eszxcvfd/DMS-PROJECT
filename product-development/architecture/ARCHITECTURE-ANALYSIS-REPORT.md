@@ -1,9 +1,9 @@
-# Báo Cáo Phân Tích Kiến Trúc - DILIGO DMS v2.0
+﻿# Báo Cáo Phân Tích Kiến Trúc - DMS VIPPro v2.0
 
 ## Tóm Tắt Điều Hành (Executive Summary)
 
 ### Tổng quan dự án
-DILIGO DMS (Distribution Management System) v2.0 là hệ thống quản lý phân phối toàn diện được thiết kế cho các công ty hàng tiêu dùng nhanh (FMCG) tại Việt Nam. Hệ thống hỗ trợ quản lý đội ngũ bán hàng hiện trường, giám sát hoạt động bán hàng, và tối ưu hóa quy trình từ đơn hàng đến giao hàng.
+DMS VIPPro (Distribution Management System) v2.0 là hệ thống quản lý phân phối toàn diện được thiết kế cho các công ty hàng tiêu dùng nhanh (FMCG) tại Việt Nam. Hệ thống hỗ trợ quản lý đội ngũ bán hàng hiện trường, giám sát hoạt động bán hàng, và tối ưu hóa quy trình từ đơn hàng đến giao hàng.
 
 ### Thời gian hoàn thành
 - **Ngày bắt đầu**: 02/02/2026
@@ -623,11 +623,11 @@ app/
 
 2. **Initialize Project Structure**
    ```
-   diligo-dms/
+   VIPPro-dms/
    ├── src/
-   │   ├── Diligo.Api/          # .NET Web API
-   │   ├── Diligo.Mobile/       # Android App
-   │   └── Diligo.Web/          # React Web App
+   │   ├── VIPPro.Api/          # .NET Web API
+   │   ├── VIPPro.Mobile/       # Android App
+   │   └── VIPPro.Web/          # React Web App
    └── tests/
    ```
 

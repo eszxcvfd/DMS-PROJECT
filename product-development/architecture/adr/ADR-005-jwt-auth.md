@@ -1,4 +1,4 @@
-# ADR-005: JWT for Authentication
+﻿# ADR-005: JWT for Authentication
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS needs a secure authentication mechanism that works across mobile and web applications. The solution must support offline mobile scenarios, multiple device sessions, and role-based access control.
+DMS VIPPro needs a secure authentication mechanism that works across mobile and web applications. The solution must support offline mobile scenarios, multiple device sessions, and role-based access control.
 
 ## Decision Drivers
 
@@ -160,8 +160,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
   "deviceId": "device-fingerprint",
   "iat": 1738454400,
   "exp": 1738540800,
-  "iss": "diligo-dms",
-  "aud": "diligo-dms-clients"
+  "iss": "VIPPro-dms",
+  "aud": "VIPPro-dms-clients"
 }
 ```
 

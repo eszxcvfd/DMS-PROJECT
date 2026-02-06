@@ -1,4 +1,4 @@
-# ADR-002: .NET 8 for API Backend
+﻿# ADR-002: .NET 8 for API Backend
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS requires a robust backend API to serve the mobile and web applications. The API must handle authentication, business logic, real-time features, and database operations. We need to select a technology stack that balances performance, developer productivity, and cost.
+DMS VIPPro requires a robust backend API to serve the mobile and web applications. The API must handle authentication, business logic, real-time features, and database operations. We need to select a technology stack that balances performance, developer productivity, and cost.
 
 ## Decision Drivers
 
@@ -75,23 +75,23 @@ DILIGO DMS requires a robust backend API to serve the mobile and web application
 │                    .NET 8 WEB API STRUCTURE                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  DiligoDMS.Api/                   (Presentation Layer)          │
+│  VIPProDMS.Api/                   (Presentation Layer)          │
 │  ├── Controllers/                 REST API endpoints            │
 │  ├── Hubs/                        SignalR hubs                  │
 │  ├── Middleware/                  Custom middleware             │
 │  └── Program.cs                   Application entry             │
 │                                                                 │
-│  DiligoDMS.Application/           (Application Layer)           │
+│  VIPProDMS.Application/           (Application Layer)           │
 │  ├── Services/                    Business logic                │
 │  ├── DTOs/                        Data transfer objects         │
 │  └── Validators/                  FluentValidation rules        │
 │                                                                 │
-│  DiligoDMS.Domain/                (Domain Layer)                │
+│  VIPProDMS.Domain/                (Domain Layer)                │
 │  ├── Entities/                    Domain models                 │
 │  ├── Enums/                       Enumerations                  │
 │  └── Interfaces/                  Repository contracts          │
 │                                                                 │
-│  DiligoDMS.Infrastructure/        (Infrastructure Layer)        │
+│  VIPProDMS.Infrastructure/        (Infrastructure Layer)        │
 │  ├── Data/                        EF Core context, migrations   │
 │  ├── Repositories/                Repository implementations    │
 │  └── Services/                    External service integrations │

@@ -1,4 +1,4 @@
-# ADR-007: Van-sales vs Pre-sales Order Workflow Design
+﻿# ADR-007: Van-sales vs Pre-sales Order Workflow Design
 
 ## Status
 
@@ -10,7 +10,7 @@
 
 ## Context
 
-DILIGO DMS supports two distinct sales models:
+DMS VIPPro supports two distinct sales models:
 
 1. **Pre-sales (Bán hàng thường)**: Traditional model where sales representatives take orders that are later approved and fulfilled by the distributor warehouse.
 

@@ -1,4 +1,4 @@
-# ADR-004: Neon Free Tier for Hosting and Deployment
+﻿# ADR-004: Neon Free Tier for Hosting and Deployment
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS needs to be deployed to a production environment. The primary constraint is **minimal to zero ongoing cost** while maintaining acceptable performance and reliability for a DMS system.
+DMS VIPPro needs to be deployed to a production environment. The primary constraint is **minimal to zero ongoing cost** while maintaining acceptable performance and reliability for a DMS system.
 
 ## Decision Drivers
 
@@ -82,15 +82,15 @@ DILIGO DMS needs to be deployed to a production environment. The primary constra
 │                                                                                         │
 │                    ┌─────────────────────────────────────────────────┐                 │
 │                    │           Azure Resource Group                  │                 │
-│                    │           "diligo-dms-rg"                       │                 │
+│                    │           "VIPPro-dms-rg"                       │                 │
 │                    │                                                 │                 │
 │                    │   ┌─────────────────────────────────────────┐  │                 │
 │                    │   │  Azure App Service (F1 Free)            │  │                 │
-│                    │   │  "diligo-dms-api"                       │  │                 │
+│                    │   │  "VIPPro-dms-api"                       │  │                 │
 │                    │   │                                         │  │                 │
 │                    │   │  - .NET 8 Runtime                       │  │                 │
 │                    │   │  - 1GB RAM, 60 CPU min/day              │  │                 │
-│                    │   │  - HTTPS: diligo-dms-api.azurewebsites.net │  │              │
+│                    │   │  - HTTPS: VIPPro-dms-api.azurewebsites.net │  │              │
 │                    │   │  - Auto-sleep after 20 min idle         │  │                 │
 │                    │   │                                         │  │                 │
 │                    │   └───────────────────┬─────────────────────┘  │                 │

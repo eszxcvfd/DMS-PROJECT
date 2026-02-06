@@ -1,4 +1,4 @@
-# DILIGO DMS - System Context (C4 Level 1)
+﻿# DMS VIPPro - System Context (C4 Level 1)
 
 ## Distribution Management System - System Context Diagram
 
@@ -10,11 +10,11 @@
 
 ## 1. System Context Overview
 
-The System Context diagram shows DILIGO DMS as a black box, highlighting its relationships with users and external systems.
+The System Context diagram shows DMS VIPPro as a black box, highlighting its relationships with users and external systems.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-│                              DILIGO DMS - SYSTEM CONTEXT                                │
+│                              DMS VIPPro - SYSTEM CONTEXT                                │
 ├─────────────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                │
@@ -32,7 +32,7 @@ The System Context diagram shows DILIGO DMS as a black box, highlighting its rel
 │                          ▼                                                              │
 │         ┌────────────────────────────────────────────────────┐                         │
 │         │                                                    │                         │
-│         │              DILIGO DMS                            │                         │
+│         │              DMS VIPPro                            │                         │
 │         │                                                    │                         │
 │         │  Distribution Management System                    │                         │
 │         │                                                    │                         │
@@ -148,7 +148,7 @@ The System Context diagram shows DILIGO DMS as a black box, highlighting its rel
 |--------|---------|
 | **Purpose** | Financial data synchronization |
 | **Integration** | Excel file export (one-way) |
-| **Data Flow** | DILIGO DMS → Excel → Oracle ERP (manual import) |
+| **Data Flow** | DMS VIPPro → Excel → Oracle ERP (manual import) |
 | **Scope** | Sales invoices, inventory movements |
 
 ---
@@ -185,14 +185,14 @@ The System Context diagram shows DILIGO DMS as a black box, highlighting its rel
 
 ```mermaid
 C4Context
-    title System Context Diagram - DILIGO DMS
+    title System Context Diagram - DMS VIPPro
 
     Person(nvbh, "NVBH", "Sales Representative with Android phone")
     Person(gsbh, "GSBH/SS", "Sales Supervisor using web browser")
     Person(asm, "ASM/RSM", "Area/Regional Manager using web browser")
     Person(admin, "Admin NPP", "Distributor Admin using web browser")
 
-    System(dms, "DILIGO DMS", "Distribution Management System for managing sales operations, orders, and distribution")
+    System(dms, "DMS VIPPro", "Distribution Management System for managing sales operations, orders, and distribution")
 
     System_Ext(maps, "Google Maps API", "Provides geocoding and mapping services")
     System_Ext(fcm, "Firebase FCM", "Push notification service")

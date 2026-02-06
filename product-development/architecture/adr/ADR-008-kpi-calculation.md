@@ -1,4 +1,4 @@
-# ADR-008: KPI Calculation Strategy
+﻿# ADR-008: KPI Calculation Strategy
 
 ## Status
 
@@ -10,7 +10,7 @@
 
 ## Context
 
-DILIGO DMS needs to track and calculate multiple KPIs for sales representatives. The system must:
+DMS VIPPro needs to track and calculate multiple KPIs for sales representatives. The system must:
 
 1. Support various KPI metrics (visits, orders, revenue, volume, SKUs, new customers)
 2. Allow target assignment by period (monthly)

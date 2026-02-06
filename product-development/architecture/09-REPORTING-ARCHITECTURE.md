@@ -1,4 +1,4 @@
-# DILIGO DMS - Reporting Architecture
+﻿# DMS VIPPro - Reporting Architecture
 
 ## Report Specifications & KPI Calculation Logic
 
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document describes the reporting architecture for DILIGO DMS, including KPI calculation formulas, report specifications, and analytics design.
+This document describes the reporting architecture for DMS VIPPro, including KPI calculation formulas, report specifications, and analytics design.
 
 ### Report Categories
 
@@ -205,7 +205,7 @@ FROM expected_pace;
   ],
   "productKpis": [
     {
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "quantityTarget": 100,
       "quantityActual": 95,
       "achievement": 95.0
@@ -297,7 +297,7 @@ ORDER BY c.customer_group;
   "focusProducts": [
     {
       "productId": "...",
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "totalTarget": 5000,
       "totalActual": 4250,
       "achievement": 85.0,
@@ -446,7 +446,7 @@ Sheet 2: Summary (if applicable)
   "exportFormat": "Oracle_ERP_v1",
   "structure": {
     "header": {
-      "sourceSystem": "DILIGO_DMS",
+      "sourceSystem": "VIPPro_DMS",
       "exportDate": "2026-02-04",
       "period": "2026-02",
       "distributorCode": "NPP-SGN-001"

@@ -1,4 +1,4 @@
-# DILIGO DMS - Deployment Architecture
+﻿# DMS VIPPro - Deployment Architecture
 
 ## Distribution Management System - Free Tier Deployment Guide
 
@@ -140,7 +140,7 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet publish src/api/DiligoDMS.Api.csproj \
+          dotnet publish src/api/VIPProDMS.Api.csproj \
             -c Release \
             -o ./publish \
             --self-contained false
@@ -148,7 +148,7 @@ jobs:
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'diligo-dms-api'
+          app-name: 'VIPPro-dms-api'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: ./publish
 ```
@@ -162,8 +162,8 @@ jobs:
   },
   "Jwt": {
     "Key": "@Microsoft.KeyVault(SecretUri=...)",
-    "Issuer": "diligo-dms",
-    "Audience": "diligo-dms-clients",
+    "Issuer": "VIPPro-dms",
+    "Audience": "VIPPro-dms-clients",
     "ExpirationMinutes": 1440
   },
   "Azure": {
@@ -173,7 +173,7 @@ jobs:
     }
   },
   "Firebase": {
-    "ProjectId": "diligo-dms",
+    "ProjectId": "VIPPro-dms",
     "CredentialsPath": "/home/site/wwwroot/firebase-credentials.json"
   }
 }
@@ -247,7 +247,7 @@ $$ LANGUAGE plpgsql;
 **Container Structure:**
 
 ```
-diligo-dms-storage/
+VIPPro-dms-storage/
 ├── products/           # Product images
 │   └── {productId}.jpg
 ├── visits/             # Visit photos
@@ -323,8 +323,8 @@ public class BlobStorageService : IBlobStorageService
 **Environment Variables:**
 
 ```bash
-VITE_API_URL=https://diligo-dms-api.azurewebsites.net
-VITE_SIGNALR_URL=https://diligo-dms-api.azurewebsites.net/hubs/monitoring
+VITE_API_URL=https://VIPPro-dms-api.azurewebsites.net
+VITE_SIGNALR_URL=https://VIPPro-dms-api.azurewebsites.net/hubs/monitoring
 VITE_GOOGLE_MAPS_KEY=AIza...
 ```
 
@@ -352,7 +352,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "dotnet DiligoDMS.Api.dll"
+startCommand = "dotnet VIPProDMS.Api.dll"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
@@ -434,7 +434,7 @@ restartPolicyType = "ON_FAILURE"
 
 ```yaml
 # .github/workflows/deploy.yml
-name: Deploy DILIGO DMS
+name: Deploy DMS VIPPro
 
 on:
   push:
@@ -474,7 +474,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'diligo-dms-api'
+          app-name: 'VIPPro-dms-api'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           package: src/api/publish
 
@@ -565,7 +565,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
-          packageName: com.diligo.dms
+          packageName: com.VIPPro.dms
           releaseFiles: src/android/app/build/outputs/apk/release/*.apk
           track: internal
 ```
@@ -667,13 +667,13 @@ Vercel Hobby     ───►  Vercel Pro ($20) ───► Vercel Team
 # Supabase provides point-in-time recovery via dashboard
 
 # For self-hosted PostgreSQL:
-pg_restore -h localhost -U postgres -d diligo_dms backup.dump
+pg_restore -h localhost -U postgres -d VIPPro_dms backup.dump
 
 # Restore blob from soft delete
 az storage blob undelete \
   --container-name images \
   --name "visits/2026/02/01/photo.jpg" \
-  --account-name diligostorage
+  --account-name VIPProstorage
 ```
 
 ---

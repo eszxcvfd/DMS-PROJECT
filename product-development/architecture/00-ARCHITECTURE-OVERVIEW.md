@@ -1,4 +1,4 @@
-# DILIGO DMS - Architecture Overview
+﻿# DMS VIPPro - Architecture Overview
 
 ## Distribution Management System
 
@@ -11,7 +11,7 @@
 
 ## 1. Executive Summary
 
-DILIGO DMS (Distribution Management System) is a comprehensive solution for managing distribution networks, field sales monitoring, and optimizing the order-to-delivery process nationwide. This document provides a high-level overview of the system architecture designed to meet the requirements outlined in the PRD.
+DMS VIPPro (Distribution Management System) is a comprehensive solution for managing distribution networks, field sales monitoring, and optimizing the order-to-delivery process nationwide. This document provides a high-level overview of the system architecture designed to meet the requirements outlined in the PRD.
 
 ### Technology Stack
 
@@ -58,7 +58,7 @@ This architecture follows the C4 Model for visualization:
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  Level 1: System Context                                           │
-│  ├── Shows DILIGO DMS and its external actors/systems              │
+│  ├── Shows DMS VIPPro and its external actors/systems              │
 │  │                                                                  │
 │  Level 2: Container Diagram                                        │
 │  ├── Shows major containers: Mobile App, Web App, API, Database   │
@@ -95,7 +95,7 @@ This architecture follows the C4 Model for visualization:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           DILIGO DMS ECOSYSTEM                              │
+│                           DMS VIPPro ECOSYSTEM                              │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │    ┌─────────────┐     ┌─────────────┐     ┌─────────────┐                 │

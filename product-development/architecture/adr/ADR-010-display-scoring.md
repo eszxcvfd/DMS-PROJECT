@@ -1,4 +1,4 @@
-# ADR-010: Display Scoring Workflow
+﻿# ADR-010: Display Scoring Workflow
 
 ## Status
 
@@ -10,7 +10,7 @@
 
 ## Context
 
-DILIGO DMS includes a "VIP Display Scoring" feature where:
+DMS VIPPro includes a "VIP Display Scoring" feature where:
 
 1. **NVBH (Sales Reps)** capture photos of product displays at customer locations
 2. **GSBH (Supervisors)** review and score these photos

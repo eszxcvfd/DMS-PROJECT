@@ -1,4 +1,4 @@
-# DILIGO DMS - Data Architecture
+﻿# DMS VIPPro - Data Architecture
 
 ## Distribution Management System - Database Design
 
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document describes the comprehensive data architecture for DILIGO DMS, redesigned to support a scalable, multi-tenant distribution system.
+This document describes the comprehensive data architecture for DMS VIPPro, redesigned to support a scalable, multi-tenant distribution system.
 
 ### Technology Stack
 | Component | Choice | Rationale |

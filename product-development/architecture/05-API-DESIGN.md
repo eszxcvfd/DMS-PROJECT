@@ -1,17 +1,17 @@
-# DILIGO DMS - API Design
+﻿# DMS VIPPro - API Design
 
 ## Distribution Management System - REST API Specification
 
 **Version:** 2.0
 **Last Updated:** 2026-02-04
 **PRD Reference:** PRD-v2.md (v2.3)
-**Base URL:** `https://diligo-dms-api.azurewebsites.net/api`
+**Base URL:** `https://VIPPro-dms-api.azurewebsites.net/api`
 
 ---
 
 ## 1. Overview
 
-This document describes the REST API design for DILIGO DMS, including endpoints, request/response formats, and authentication requirements.
+This document describes the REST API design for DMS VIPPro, including endpoints, request/response formats, and authentication requirements.
 
 ### API Principles
 
@@ -198,8 +198,8 @@ Query Parameters:
     {
       "productId": "880e8400-e29b-41d4-a716-446655440003",
       "productCode": "SP001",
-      "name": "Sữa tắm Diligo 500ml",
-      "brand": "Diligo",
+      "name": "Sữa tắm VIPPro 500ml",
+      "brand": "VIPPro",
       "category": "ChămSócCáNhân",
       "unitName": "Thùng",
       "subUnitName": "Chai",
@@ -378,7 +378,7 @@ Content-Type: application/json
     {
       "productId": "880e8400-e29b-41d4-a716-446655440003",
       "productCode": "SP001",
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "quantity": 5,
       "unitType": "Main",
       "unitPrice": 1200000,
@@ -561,7 +561,7 @@ Content-Type: application/json
 #### Hub URL
 
 ```
-wss://diligo-dms-api.azurewebsites.net/hubs/monitoring?access_token={token}
+wss://VIPPro-dms-api.azurewebsites.net/hubs/monitoring?access_token={token}
 ```
 
 #### Subscribe to Location Updates
@@ -991,7 +991,7 @@ Query Parameters:
       "productTargets": [
         {
           "productId": "880e8400-e29b-41d4-a716-446655440003",
-          "productName": "Sữa tắm Diligo 500ml",
+          "productName": "Sữa tắm VIPPro 500ml",
           "quantityTarget": 100,
           "revenueTarget": 50000000
         }
@@ -1144,7 +1144,7 @@ Query Parameters:
   "productKpis": [
     {
       "productId": "880e8400-e29b-41d4-a716-446655440003",
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "quantityTarget": 100,
       "quantityActual": 45,
       "achievement": 45.0
@@ -1339,7 +1339,7 @@ Query Parameters:
     {
       "productId": "880e8400-e29b-41d4-a716-446655440003",
       "productCode": "SP001",
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "quantity": 50,
       "reservedQuantity": 5,
       "availableQuantity": 45,
@@ -1387,7 +1387,7 @@ Content-Type: application/json
   "items": [
     {
       "productId": "880e8400-e29b-41d4-a716-446655440003",
-      "productName": "Sữa tắm Diligo 500ml",
+      "productName": "Sữa tắm VIPPro 500ml",
       "quantity": 100,
       "previousStock": 500,
       "newStock": 400

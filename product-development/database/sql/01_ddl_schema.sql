@@ -1,5 +1,5 @@
--- ============================================================
--- DILIGO DMS - Data Definition Language (DDL)
+﻿-- ============================================================
+-- DMS VIPPro - Data Definition Language (DDL)
 -- Distribution Management System - Database Schema
 -- Version: 3.1 | PostgreSQL 16+
 -- ============================================================

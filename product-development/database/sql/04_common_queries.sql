@@ -1,5 +1,5 @@
--- ============================================================
--- DILIGO DMS - Common Queries by Module
+﻿-- ============================================================
+-- DMS VIPPro - Common Queries by Module
 -- Distribution Management System
 -- Version: 3.1 | PostgreSQL 16+
 -- ============================================================

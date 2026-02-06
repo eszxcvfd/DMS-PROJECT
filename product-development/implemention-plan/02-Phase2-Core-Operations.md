@@ -1,6 +1,6 @@
 # Phase 2: Core Operations - Implementation Plan
 
-**Project:** DILIGO DMS (Distribution Management System)
+**Project:** DMS VIPPro (Distribution Management System)
 **Phase:** 2 - Core Operations
 **PRD Version:** v2.3
 **Architecture Version:** v2.0
@@ -11,7 +11,7 @@
 
 ## 1. Phase Overview
 
-Phase 2 implements the core business operations of DILIGO DMS - order management (Pre-sales and Van-sales), inventory management, customer visits with photo capture, attendance tracking, and basic reporting. This phase enables end-to-end business workflows from customer visits to order fulfillment.
+Phase 2 implements the core business operations of DMS VIPPro - order management (Pre-sales and Van-sales), inventory management, customer visits with photo capture, attendance tracking, and basic reporting. This phase enables end-to-end business workflows from customer visits to order fulfillment.
 
 ### 1.1 Objectives
 

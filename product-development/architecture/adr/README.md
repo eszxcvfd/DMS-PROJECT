@@ -1,6 +1,6 @@
-# Architecture Decision Records (ADRs)
+﻿# Architecture Decision Records (ADRs)
 
-## DILIGO DMS - Architecture Decision Log
+## DMS VIPPro - Architecture Decision Log
 
 **Last Updated:** 2026-02-04
 

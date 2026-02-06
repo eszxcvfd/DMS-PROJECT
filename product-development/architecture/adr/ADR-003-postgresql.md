@@ -1,4 +1,4 @@
-# ADR-003: PostgreSQL for Database
+﻿# ADR-003: PostgreSQL for Database
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS requires a reliable database to store master data, transactions, and operational data. The database must support complex queries, transactions, and scale to handle 1000+ concurrent users.
+DMS VIPPro requires a reliable database to store master data, transactions, and operational data. The database must support complex queries, transactions, and scale to handle 1000+ concurrent users.
 
 ## Decision Drivers
 

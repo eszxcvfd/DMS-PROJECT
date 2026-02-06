@@ -1,4 +1,4 @@
-# ADR-001: Android-Only Mobile Platform
+﻿# ADR-001: Android-Only Mobile Platform
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS requires a mobile application for field sales representatives (NVBH) to perform their daily tasks including customer visits, order creation, and photo capture. We need to decide which mobile platform(s) to support.
+DMS VIPPro requires a mobile application for field sales representatives (NVBH) to perform their daily tasks including customer visits, order creation, and photo capture. We need to decide which mobile platform(s) to support.
 
 The target users (NVBH) are field workers who may not have high-end devices. The application needs to work reliably in areas with poor connectivity and support offline operations.
 

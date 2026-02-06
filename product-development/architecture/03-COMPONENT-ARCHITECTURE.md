@@ -1,4 +1,4 @@
-# DILIGO DMS - Component Architecture (C4 Level 3)
+﻿# DMS VIPPro - Component Architecture (C4 Level 3)
 
 ## Distribution Management System - Component Diagrams
 
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document details the internal components of each container in the DILIGO DMS system, showing their responsibilities and interactions.
+This document details the internal components of each container in the DMS VIPPro system, showing their responsibilities and interactions.
 
 ---
 

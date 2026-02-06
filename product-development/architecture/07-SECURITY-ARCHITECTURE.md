@@ -1,4 +1,4 @@
-# DILIGO DMS - Security Architecture
+﻿# DMS VIPPro - Security Architecture
 
 ## Distribution Management System - Security Design
 
@@ -10,7 +10,7 @@
 
 ## 1. Overview
 
-This document describes the security architecture for DILIGO DMS, covering authentication, authorization, data protection, and security best practices.
+This document describes the security architecture for DMS VIPPro, covering authentication, authorization, data protection, and security best practices.
 
 ### Security Objectives
 
@@ -157,8 +157,8 @@ This document describes the security architecture for DILIGO DMS, covering authe
   "permissions": ["visit:create", "order:create", "customer:read"],
   "iat": 1738454400,
   "exp": 1738540800,
-  "iss": "diligo-dms",
-  "aud": "diligo-dms-clients"
+  "iss": "VIPPro-dms",
+  "aud": "VIPPro-dms-clients"
 }
 
 // Refresh Token (stored in database)
@@ -523,8 +523,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Production", policy =>
     {
         policy.WithOrigins(
-            "https://diligo-dms.vercel.app",
-            "https://diligo-dms.azurewebsites.net"
+            "https://VIPPro-dms.vercel.app",
+            "https://VIPPro-dms.azurewebsites.net"
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
@@ -612,7 +612,7 @@ public async Task<List<Order>> SearchOrders(string searchTerm)
 ```kotlin
 // Certificate Pinning with OkHttp
 val certificatePinner = CertificatePinner.Builder()
-    .add("diligo-dms-api.azurewebsites.net", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+    .add("VIPPro-dms-api.azurewebsites.net", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
     .build()
 
 val okHttpClient = OkHttpClient.Builder()
@@ -636,7 +636,7 @@ fun saveToken(token: String) {
 
 // ProGuard/R8 obfuscation
 // proguard-rules.pro
--keep class com.diligo.dms.data.models.** { *; }
+-keep class com.VIPPro.dms.data.models.** { *; }
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
@@ -652,7 +652,7 @@ val factory = SupportFactory(passphrase)
 val database = Room.databaseBuilder(
     context,
     AppDatabase::class.java,
-    "diligo_dms.db"
+    "VIPPro_dms.db"
 )
 .openHelperFactory(factory)
 .build()

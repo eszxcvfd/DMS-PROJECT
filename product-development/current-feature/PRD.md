@@ -1,15 +1,15 @@
-# Product Requirements Document (PRD)
-## Hệ thống Quản lý Phân phối (DMS - Distribution Management System) cho DILIGO
+﻿# Product Requirements Document (PRD)
+## Hệ thống Quản lý Phân phối (DMS - Distribution Management System) cho VIPPro
 
 ---
 
 ## 1. Tổng quan sản phẩm
 
 ### 1.1 Tên sản phẩm
-**DILIGO DMS** - Hệ thống Quản lý Phân phối
+**DMS VIPPro** - Hệ thống Quản lý Phân phối
 
 ### 1.2 Tầm nhìn sản phẩm
-Xây dựng một hệ thống DMS toàn diện giúp DILIGO quản lý hiệu quả mạng lưới phân phối, giám sát hoạt động bán hàng thực địa, và tối ưu hóa quy trình từ đặt hàng đến giao hàng trên toàn quốc.
+Xây dựng một hệ thống DMS toàn diện giúp VIPPro quản lý hiệu quả mạng lưới phân phối, giám sát hoạt động bán hàng thực địa, và tối ưu hóa quy trình từ đặt hàng đến giao hàng trên toàn quốc.
 
 ### 1.3 Mục tiêu kinh doanh
 - Số hóa toàn bộ quy trình bán hàng và phân phối
@@ -406,9 +406,9 @@ Xây dựng một hệ thống DMS toàn diện giúp DILIGO quản lý hiệu q
 
 ### 11.2 Tài liệu tham chiếu
 - docs/baocaochucnang.md - Bảng mô tả chức năng
-- docs/1. DILIGO.TaiLieu.NVBH.md - Tài liệu hướng dẫn NVBH
-- docs/2. DILIGO.TaiLieu.ThucHanh_GSBH.md - Tài liệu thực hành GSBH
-- docs/3. DILIGO.TaiLieu.ThucHanh_AdminNPP.md - Tài liệu Admin NPP
+- docs/1. VIPPro.TaiLieu.NVBH.md - Tài liệu hướng dẫn NVBH
+- docs/2. VIPPro.TaiLieu.ThucHanh_GSBH.md - Tài liệu thực hành GSBH
+- docs/3. VIPPro.TaiLieu.ThucHanh_AdminNPP.md - Tài liệu Admin NPP
 - docs/khach_hang.csv - Dữ liệu mẫu khách hàng
 - docs/san_pham.csv - Dữ liệu mẫu sản phẩm
 - docs/nha_phan_phoi.csv - Dữ liệu mẫu NPP

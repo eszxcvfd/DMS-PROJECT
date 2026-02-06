@@ -1,6 +1,6 @@
 # Phase 3: Advanced Features - Implementation Plan
 
-**Project:** DILIGO DMS (Distribution Management System)
+**Project:** DMS VIPPro (Distribution Management System)
 **Phase:** 3 - Advanced Features
 **PRD Version:** v2.3
 **Architecture Version:** v2.0
@@ -163,7 +163,7 @@ NVBH uploads display photos → Pending queue → GSBH scores (Đạt/Không đ�
 - [ ] Update `distributor` table with onboarding fields:
   - `owner_name`, `owner_family_info` (JSONB)
   - `infrastructure_info` (JSONB)
-  - `diligo_target` (text)
+  - `vippro_target` (text)
   - `onboarding_status`: 'DRAFT', 'PENDING', 'APPROVED', 'REJECTED'
   - `onboarding_date`, `onboarding_by`
 - [ ] Create `distributor_photo` table:
@@ -245,7 +245,7 @@ NVBH uploads display photos → Pending queue → GSBH scores (Đạt/Không đ�
   - Step 1: Basic info (code, name, tax code, address, contact)
   - Step 2: Owner info (name, phone, family, 6 quả phúc)
   - Step 3: Infrastructure (warehouse, staff, vehicles)
-  - Step 4: Diligo targets (revenue, growth goals)
+  - Step 4: VIPPro targets (revenue, growth goals)
   - Step 5: Photo upload (store front, owner, meeting, docs)
   - Review and submit
 - [ ] Create `NPPOnboardingViewModel`:

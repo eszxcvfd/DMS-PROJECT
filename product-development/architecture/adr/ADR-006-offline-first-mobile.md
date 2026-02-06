@@ -1,4 +1,4 @@
-# ADR-006: Offline-First Mobile Architecture
+﻿# ADR-006: Offline-First Mobile Architecture
 
 ## Status
 
@@ -10,7 +10,7 @@ Accepted
 
 ## Context
 
-DILIGO DMS mobile app is used by field sales representatives (NVBH) who frequently work in areas with poor or no internet connectivity. The app must support full functionality offline and sync data when connectivity is restored.
+DMS VIPPro mobile app is used by field sales representatives (NVBH) who frequently work in areas with poor or no internet connectivity. The app must support full functionality offline and sync data when connectivity is restored.
 
 ## Decision Drivers
 

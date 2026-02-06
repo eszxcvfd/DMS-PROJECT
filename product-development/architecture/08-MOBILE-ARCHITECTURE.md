@@ -1,4 +1,4 @@
-# DILIGO DMS - Mobile Architecture
+﻿# DMS VIPPro - Mobile Architecture
 
 ## Android Application Architecture
 
@@ -11,7 +11,7 @@
 
 ## 1. Overview
 
-This document describes the architecture of the DILIGO DMS Android application, designed for field sales representatives (NVBH) to perform daily operations including customer visits, order creation, and photo capture.
+This document describes the architecture of the DMS VIPPro Android application, designed for field sales representatives (NVBH) to perform daily operations including customer visits, order creation, and photo capture.
 
 ### Technology Stack
 
@@ -37,8 +37,8 @@ This document describes the architecture of the DILIGO DMS Android application, 
 ```
 app/
 ├── src/main/
-│   ├── java/com/diligo/dms/
-│   │   ├── DiligoDmsApp.kt              # Application class
+│   ├── java/com/VIPPro/dms/
+│   │   ├── VIPProDmsApp.kt              # Application class
 │   │   │
 │   │   ├── di/                          # Dependency Injection
 │   │   │   ├── AppModule.kt
@@ -227,7 +227,7 @@ object NetworkModule {
             .readTimeout(30, TimeUnit.SECONDS)
             .certificatePinner(
                 CertificatePinner.Builder()
-                    .add("diligo-dms-api.azurewebsites.net", "sha256/...")
+                    .add("VIPPro-dms-api.azurewebsites.net", "sha256/...")
                     .build()
             )
             .build()
@@ -257,7 +257,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "diligo_dms.db"
+            "VIPPro_dms.db"
         )
             .addMigrations(MIGRATION_1_2)
             .build()
@@ -804,7 +804,7 @@ class SecurePreferences @Inject constructor(
 ```kotlin
 // In NetworkModule
 val certificatePinner = CertificatePinner.Builder()
-    .add("diligo-dms-api.azurewebsites.net", "sha256/XXXXX...")
+    .add("VIPPro-dms-api.azurewebsites.net", "sha256/XXXXX...")
     .build()
 
 val client = OkHttpClient.Builder()
@@ -819,11 +819,11 @@ val client = OkHttpClient.Builder()
 ```kotlin
 // build.gradle.kts (app)
 android {
-    namespace = "com.diligo.dms"
+    namespace = "com.VIPPro.dms"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.diligo.dms"
+        applicationId = "com.VIPPro.dms"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -838,7 +838,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_BASE_URL", "\"https://diligo-dms-api.azurewebsites.net/api/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://VIPPro-dms-api.azurewebsites.net/api/\"")
         }
         debug {
             buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:5000/api/\"")
@@ -896,7 +896,7 @@ dependencies {
 ### 8.1 Project Structure Addition
 
 ```text
-app/src/main/java/com/diligo/dms/
+app/src/main/java/com/VIPPro/dms/
 ├── presentation/screens/
 │   ├── gsbh/                          # GSBH-specific screens
 │   │   ├── npp/                       # NPP Management (Mở mới NPP)

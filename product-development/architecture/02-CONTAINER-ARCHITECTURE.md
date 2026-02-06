@@ -1,4 +1,4 @@
-# DILIGO DMS - Container Architecture (C4 Level 2)
+﻿# DMS VIPPro - Container Architecture (C4 Level 2)
 
 ## Distribution Management System - Container Diagram
 
@@ -10,7 +10,7 @@
 
 ## 1. Container Overview
 
-This document describes the high-level technology choices and responsibilities of each container (deployable unit) in the DILIGO DMS system.
+This document describes the high-level technology choices and responsibilities of each container (deployable unit) in the DMS VIPPro system.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -355,13 +355,13 @@ This document describes the high-level technology choices and responsibilities o
 
 ```mermaid
 C4Container
-    title Container Diagram - DILIGO DMS
+    title Container Diagram - DMS VIPPro
 
     Person(nvbh, "NVBH", "Sales Rep")
     Person(supervisor, "GSBH/ASM/RSM", "Supervisors & Managers")
     Person(admin, "Admin NPP", "Distributor Admin")
 
-    Container_Boundary(dms, "DILIGO DMS") {
+    Container_Boundary(dms, "DMS VIPPro") {
         Container(mobile, "Android App", "Kotlin, Jetpack Compose", "Field operations: visits, orders, photos")
         Container(web, "Web Application", "React/Blazor", "Dashboard, monitoring, management")
         Container(api, "API Server", ".NET 8, ASP.NET Core", "REST API, Business Logic, SignalR")
