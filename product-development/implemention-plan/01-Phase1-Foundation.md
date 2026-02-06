@@ -85,7 +85,7 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Build automated deployment pipelines
 
 **Subtasks:**
-- [ ] Set up GitHub Actions for backend
+- ~~Set up GitHub Actions for backend~~ (not needed)
 - [ ] Set up GitHub Actions for Android (build only)
 - [ ] Set up GitHub Actions for React web
 - [ ] Configure automated testing on PR
@@ -105,8 +105,8 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Set up free-tier cloud services
 
 **Subtasks:**
-- [ ] Create Azure App Service (F1 Free) for API
-- [ ] Create Neon PostgreSQL free instance
+- [x] Create Azure App Service (F1 Free) for API
+- [ ] Create Neon PostgreSQL free instance 
 - [ ] Create Vercel account for web deployment
 - [ ] Configure Azure Blob Storage (5GB free) for images
 - [ ] Set up Firebase project for FCM
