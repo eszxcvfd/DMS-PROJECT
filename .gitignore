@@ -2,6 +2,7 @@
 !/.gitignore
 !/docs/
 !/product-development/
+!/src/
 
 # Tooling and configuration
 .mcp.json

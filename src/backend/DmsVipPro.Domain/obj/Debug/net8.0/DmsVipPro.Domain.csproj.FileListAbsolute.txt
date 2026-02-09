@@ -1,0 +1,12 @@
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\bin\Debug\net8.0\DmsVipPro.Domain.deps.json
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\bin\Debug\net8.0\DmsVipPro.Domain.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\bin\Debug\net8.0\DmsVipPro.Domain.pdb
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.AssemblyInfoInputs.cache
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.AssemblyInfo.cs
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.csproj.CoreCompileInputs.cache
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.sourcelink.json
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\refint\DmsVipPro.Domain.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\DmsVipPro.Domain.pdb
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Domain\obj\Debug\net8.0\ref\DmsVipPro.Domain.dll

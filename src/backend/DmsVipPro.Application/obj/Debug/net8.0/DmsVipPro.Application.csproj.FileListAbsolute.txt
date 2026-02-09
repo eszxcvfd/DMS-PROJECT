@@ -1,0 +1,16 @@
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\bin\Debug\net8.0\DmsVipPro.Application.deps.json
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\bin\Debug\net8.0\DmsVipPro.Application.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\bin\Debug\net8.0\DmsVipPro.Application.pdb
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\bin\Debug\net8.0\DmsVipPro.Domain.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\bin\Debug\net8.0\DmsVipPro.Domain.pdb
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.csproj.AssemblyReference.cache
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.AssemblyInfoInputs.cache
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.AssemblyInfo.cs
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.csproj.CoreCompileInputs.cache
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.sourcelink.json
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPr.D3D46FEE.Up2Date
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\refint\DmsVipPro.Application.dll
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\DmsVipPro.Application.pdb
+c:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.Application\obj\Debug\net8.0\ref\DmsVipPro.Application.dll

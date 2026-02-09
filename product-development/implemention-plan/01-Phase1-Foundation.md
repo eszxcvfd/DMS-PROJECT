@@ -106,7 +106,7 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 
 **Subtasks:**
 - [x] Create Azure App Service (F1 Free) for API (Trung)
-- [ ] Create Neon PostgreSQL free instance (Trung)
+- [x] Create Neon PostgreSQL free instance (Trung)
 - [ ] Create Vercel account for web deployment (Giang)
 - [ ] Configure Azure Blob Storage (5GB free) for images (Trung)
 - [ ] Set up Firebase project for FCM (Giang)
