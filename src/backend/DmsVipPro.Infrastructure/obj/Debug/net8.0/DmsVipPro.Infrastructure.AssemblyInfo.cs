@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DmsVipPro.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+14ed5b63320abaa75254dfc2f93943be2bf3f43c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3c9fbf5cf29c9b84c0a5e3dc449778752ac76201")]
 [assembly: System.Reflection.AssemblyProductAttribute("DmsVipPro.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DmsVipPro.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -9,3 +9,30 @@
 .claude/
 .serena/
 
+# Environment variables (Frontend)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+!.env.example
+
+# Backend sensitive configuration
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.Staging.json
+**/appsettings.Production.json
+!**/appsettings.example.json
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# User secrets
+**/secrets.json
+
+

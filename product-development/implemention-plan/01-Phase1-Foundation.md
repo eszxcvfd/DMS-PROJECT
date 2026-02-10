@@ -89,7 +89,7 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 - [x] Set up GitHub Actions for Android (Trung)
 - [x] Set up GitHub Actions for React web (Trung)
 - [x] Configure automated testing on PR (not need now)
-- [-] Set up code coverage reporting (not need now)
+- [x] Set up code coverage reporting (not need now)
 - [ ] Configure environment variables (dev, staging, prod) (Giang)
 
 **Deliverables:**
