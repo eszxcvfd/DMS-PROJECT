@@ -1,4 +1,4 @@
-﻿# ADR-004: Neon Free Tier for Hosting and Deployment
+# ADR-004: Neon Free Tier for Hosting and Deployment
 
 ## Status
 
@@ -24,14 +24,15 @@ DMS VIPPro needs to be deployed to a production environment. The primary constra
 ## Considered Options
 
 ### 1. Azure Free Tier (Primary)
-- App Service F1: 60 CPU min/day, 1GB RAM
-- Azure SQL Free: 32GB, 100K vCore-sec (not using - see ADR-003)
-- Neon PostgreSQL: 512MB (primary database)
-- Supabase PostgreSQL: 500MB (secondary/alternative)
-- Blob Storage: 5GB free
-- Application Insights: 5GB/month
 
-### 2. Railway.app
+- Azure App Service F1: 60 CPU minutes/day, 1GB RAM (for API)
+- Cloudinary: Free Plan (25 credits/month - approx 25GB managed storage or 25GB net bandwidth)
+- Azure SQL Free: 32GB, 100K vCore-sec (not using - see ADR-003)
+
+**We will use Neon and Azure App Service as the primary deployment platform, with Cloudinary for media storage.**
+
+### 2. Neon Serverless Postgres (Database)
+
 - $5 free credits/month
 - PostgreSQL 500MB
 - Good PostgreSQL hosting option
@@ -63,7 +64,8 @@ DMS VIPPro needs to be deployed to a production environment. The primary constra
 
 1. **PostgreSQL via Neon**: We use Neon Free tier for PostgreSQL database (512MB) as decided in ADR-003.
 
-2. **Integrated Ecosystem**: Azure App Service + Neon PostgreSQL + Azure Blob Storage work well together.
+2. **Integrated Ecosystem**: Azure App Service + Neon PostgreSQL + Cloudinary work well together.
+
 
 3. **.NET Optimization**: Azure App Service is optimized for .NET applications with minimal configuration.
 
@@ -86,20 +88,8 @@ DMS VIPPro needs to be deployed to a production environment. The primary constra
 │                    │                                                 │                 │
 │                    │   ┌─────────────────────────────────────────┐  │                 │
 │                    │   │  Azure App Service (F1 Free)            │  │                 │
-│                    │   │  "VIPPro-dms-api"                       │  │                 │
-│                    │   │                                         │  │                 │
-│                    │   │  - .NET 8 Runtime                       │  │                 │
-│                    │   │  - 1GB RAM, 60 CPU min/day              │  │                 │
-│                    │   │  - HTTPS: VIPPro-dms-api.azurewebsites.net │  │              │
-│                    │   │  - Auto-sleep after 20 min idle         │  │                 │
-│                    │   │                                         │  │                 │
-│                    │   └───────────────────┬─────────────────────┘  │                 │
-│                    │                       │                        │                 │
-│                    │          ┌────────────┴────────────┐           │                 │
-│                    │          │                         │           │                 │
-│                    │          ▼                         ▼           │                 │
-│                    │   ┌─────────────────┐       ┌─────────────────┐│                 │
-│                    │   │ Neon            │       │ Azure Blob      ││                 │
+│                    │   │ Neon            │       │ Cloudinary      ││                 │
+
 │                    │   │ (PostgreSQL)    │       │ (Free 5GB)      ││                 │
 │                    │   │                 │       │                 ││                 │
 │                    │   │ - 512MB storage │       │ - Product images││                 │
@@ -141,10 +131,11 @@ DMS VIPPro needs to be deployed to a production environment. The primary constra
 | API Server | Azure App Service F1 | 60 CPU min/day, 1GB | **$0** |
 | Database | Neon Free | 512MB PostgreSQL | **$0** |
 | Web App | Vercel Hobby | 100GB bandwidth | **$0** |
-| Blob Storage | Azure Blob | 5GB, 20K ops | **$0** |
+| Media Storage | Cloudinary | 25 Credits (approx 25GB) | **$0** |
 | Push Notifications | Firebase FCM | Unlimited | **$0** |
 | Monitoring | Application Insights | 5GB/month | **$0** |
 | **Total** | | | **$0/month** |
+
 
 ## Limitations & Mitigations
 

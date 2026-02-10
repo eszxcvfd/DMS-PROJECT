@@ -70,3 +70,5 @@ C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPr
 C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.API\obj\Debug\net8.0\DmsVipPro.API.pdb
 C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.API\obj\Debug\net8.0\DmsVipPro.API.genruntimeconfig.cache
 C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.API\obj\Debug\net8.0\ref\DmsVipPro.API.dll
+C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.API\bin\Debug\net8.0\CloudinaryDotNet.dll
+C:\Users\Admin\Documents\data\2026\project\personal-project\src\backend\DmsVipPro.API\bin\Debug\net8.0\Newtonsoft.Json.dll

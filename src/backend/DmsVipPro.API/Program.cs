@@ -1,3 +1,5 @@
+using DmsVipPro.Application.Interfaces;
+using DmsVipPro.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using DmsVipPro.Infrastructure.Data;
 using Serilog;
@@ -35,6 +37,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         b => b.MigrationsAssembly("DmsVipPro.Infrastructure")));
 
 // 5. Add Application Services (DI)
+builder.Services.AddScoped<IFileService, CloudinaryService>();
 // builder.Services.AddScoped<IOrderService, OrderService>(); 
 
 var app = builder.Build();
