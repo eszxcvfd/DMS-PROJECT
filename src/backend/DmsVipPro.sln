@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmsVipPro.Infrastructure", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmsVipPro.API", "DmsVipPro.API\DmsVipPro.API.csproj", "{D245700D-86AA-42B8-9DA8-5CE6291C2B87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmsVipPro.Tests", "DmsVipPro.Tests\DmsVipPro.Tests.csproj", "{0EF22FF0-03F5-4E1A-8063-779DF6226997}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{D245700D-86AA-42B8-9DA8-5CE6291C2B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D245700D-86AA-42B8-9DA8-5CE6291C2B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D245700D-86AA-42B8-9DA8-5CE6291C2B87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0EF22FF0-03F5-4E1A-8063-779DF6226997}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EF22FF0-03F5-4E1A-8063-779DF6226997}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EF22FF0-03F5-4E1A-8063-779DF6226997}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EF22FF0-03F5-4E1A-8063-779DF6226997}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

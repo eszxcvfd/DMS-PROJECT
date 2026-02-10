@@ -85,11 +85,11 @@ Phase 1 establishes the foundation infrastructure and core data management capab
 **Description:** Build automated deployment pipelines
 
 **Subtasks:**
-- [ ] Set up GitHub Actions for backend (Giang)
-- [ ] Set up GitHub Actions for Android (Trung)
-- [ ] Set up GitHub Actions for React web (Trung)
-- [ ] Configure automated testing on PR (not need now)
-- [ ] Set up code coverage reporting (not need now)
+- [x] Set up GitHub Actions for backend (Giang)
+- [x] Set up GitHub Actions for Android (Trung)
+- [x] Set up GitHub Actions for React web (Trung)
+- [x] Configure automated testing on PR (not need now)
+- [-] Set up code coverage reporting (not need now)
 - [ ] Configure environment variables (dev, staging, prod) (Giang)
 
 **Deliverables:**
